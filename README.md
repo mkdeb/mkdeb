@@ -18,11 +18,11 @@ Recipes
 Packages are built using recipes provided in a separate Git [repository][recipes].
 
 
-[godoc-badge]:  https://godoc.org/github.com/mkdeb/mkdeb?status.svg
-[godoc]:        https://godoc.org/github.com/mkdeb/mkdeb
+[godoc-badge]:  https://godoc.org/mkdeb.sh?status.svg
+[godoc]:        https://godoc.org/mkdeb.sh
 [license]:      https://www.apache.org/licenses/LICENSE-2.0
 [project]:      https://mkdeb.sh/
 [recipes]:      https://github.com/mkdeb/recipes
-[report-badge]: https://goreportcard.com/badge/github.com/mkdeb/mkdeb
-[report]:       https://goreportcard.com/report/github.com/mkdeb/mkdeb
+[report-badge]: https://goreportcard.com/badge/mkdeb.sh
+[report]:       https://goreportcard.com/report/mkdeb.sh
 [source]:       https://github.com/mkdeb/mkdeb
