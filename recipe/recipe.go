@@ -13,6 +13,7 @@ import (
 
 // Recipe represents a packaging recipe instance.
 type Recipe struct {
+	Version     int               `yaml:"version"`
 	Name        string            `yaml:"name"`
 	Description string            `yaml:"description"`
 	Homepage    string            `yaml:"homepage"`
@@ -36,6 +37,10 @@ func LoadRecipe(path string) (*Recipe, error) {
 		return nil, err
 	} else if err = yaml.Unmarshal(data, &r); err != nil {
 		return nil, err
+	}
+
+	if r.Version != 1 {
+		return nil, ErrUnsupportedVersion
 	}
 
 	// Load control and recipe files references from filesystem
