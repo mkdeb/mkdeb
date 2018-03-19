@@ -49,6 +49,10 @@ var buildCommand = cli.Command{
 }
 
 func execBuild(ctx *cli.Context) error {
+	if ctx.String("to") != "" && ctx.NArg() > 1 {
+		return errors.New("can't use \"--to\" when multiple packages are being built")
+	}
+
 	for _, arg := range ctx.Args() {
 		name, arch, version := parseRef(arg)
 		if arch == "" {
@@ -81,7 +85,10 @@ func execBuild(ctx *cli.Context) error {
 		}
 		defer f.Close()
 
-		info, err := createPackage(arch, version, ctx.Int("revision"), recipe, f)
+		// Get for output file path (will be overwritten if left empty)
+		path := ctx.String("to")
+
+		info, err := createPackage(arch, version, ctx.Int("revision"), recipe, f, path)
 		if err != nil {
 			return errors.Wrap(err, "failed to create package")
 		}
@@ -171,7 +178,9 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	return path, nil
 }
 
-func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r io.ReadCloser) (*packageInfo, error) {
+func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r io.ReadCloser,
+	path string) (*packageInfo, error) {
+
 	var compress int
 
 	if arch != "" {
@@ -361,8 +370,13 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 		}
 	}
 
+	// Set default file path is empty
+	if path == "" {
+		path = fmt.Sprintf("%s_%s_%s.deb", p.Name, p.Version, p.Arch)
+	}
+
 	info := &packageInfo{
-		Path: fmt.Sprintf("%s_%s_%s.deb", p.Name, p.Version, p.Arch),
+		Path: path,
 	}
 
 	file, err := os.Create(info.Path)
