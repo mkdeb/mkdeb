@@ -30,7 +30,7 @@ func run() error {
 
 	configDir = filepath.Join(usr.HomeDir, ".mkdeb")
 	cacheDir = filepath.Join(configDir, "cache")
-	repositoryDir = filepath.Join(configDir, "recipes")
+	repositoryDir = filepath.Join(configDir, "recipes/default")
 
 	// Create cache directory if missing
 	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
