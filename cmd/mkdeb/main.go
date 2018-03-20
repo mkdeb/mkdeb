@@ -47,6 +47,7 @@ func run() error {
 		buildCommand,
 		cleanCommand,
 		updateCommand,
+		versionCommand,
 	}
 
 	return app.Run(os.Args)
