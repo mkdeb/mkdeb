@@ -61,8 +61,21 @@ func (r *Reader) Close() error {
 }
 
 // Next advances to the next entry in the archive (see archive/tar Reader.Next for details).
-func (r *Reader) Next() (*tar.Header, error) {
-	return r.tar.Next()
+func (r *Reader) Next() (*Header, error) {
+	h, err := r.tar.Next()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Header{
+		Name:     h.Name,
+		LinkName: h.Linkname,
+		Size:     h.Size,
+		Mode:     h.FileInfo().Mode(),
+		User:     h.Uname,
+		Group:    h.Gname,
+		ModTime:  h.ModTime,
+	}, nil
 }
 
 // Read reads from the current file in the archive (see archive/tar Reader.Read for details).

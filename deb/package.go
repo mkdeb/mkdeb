@@ -1,7 +1,6 @@
 package deb
 
 import (
-	"archive/tar"
 	"bytes"
 	"crypto/md5"
 	"fmt"
@@ -60,16 +59,14 @@ func NewPackage(name, arch, version string, revision int) (*Package, error) {
 }
 
 // AddControlFile appends a new file to the internal control archive.
-func (p *Package) AddControlFile(name string, r io.Reader, info os.FileInfo) error {
-	err := p.control.WriteHeader(&tar.Header{
-		Typeflag: tar.TypeReg,
-		Name:     name,
-		Size:     info.Size(),
-		Mode:     int64(info.Mode()),
-		Uname:    "root",
-		Gname:    "root",
-		ModTime:  info.ModTime(),
-		Format:   tar.FormatGNU,
+func (p *Package) AddControlFile(name string, r io.Reader, fi os.FileInfo) error {
+	err := p.control.WriteHeader(&archive.Header{
+		Name:    name,
+		Size:    fi.Size(),
+		Mode:    fi.Mode(),
+		User:    "root",
+		Group:   "root",
+		ModTime: fi.ModTime(),
 	})
 	if err != nil {
 		return err
@@ -87,19 +84,17 @@ func (p *Package) AddDir(path string, mode os.FileMode) error {
 
 	p.dirs[path] = struct{}{}
 
-	return p.data.WriteHeader(&tar.Header{
-		Typeflag: tar.TypeDir,
-		Name:     "." + path,
-		Mode:     int64(mode),
-		Uname:    "root",
-		Gname:    "root",
-		ModTime:  p.modTime,
-		Format:   tar.FormatGNU,
+	return p.data.WriteHeader(&archive.Header{
+		Name:    "." + path,
+		Mode:    mode | os.ModeDir,
+		User:    "root",
+		Group:   "root",
+		ModTime: p.modTime,
 	})
 }
 
 // AddFile appends a new file to the internal data archive.
-func (p *Package) AddFile(path string, r io.Reader, info os.FileInfo) error {
+func (p *Package) AddFile(path string, r io.Reader, fi os.FileInfo) error {
 	digest := md5.New()
 
 	if err := p.ensureParent(path); err != nil {
@@ -107,23 +102,23 @@ func (p *Package) AddFile(path string, r io.Reader, info os.FileInfo) error {
 	}
 
 	// Append file and its MD5 sum to the sums listing if regular file
-	size := info.Size()
+	size := fi.Size()
 	p.Control.installedSize += size
 
-	if err := p.data.WriteHeader(&tar.Header{
-		Typeflag: tar.TypeReg,
-		Name:     "." + path,
-		Size:     size,
-		Mode:     int64(info.Mode()),
-		Uname:    "root",
-		Gname:    "root",
-		ModTime:  info.ModTime(),
-		Format:   tar.FormatGNU,
-	}); err != nil {
+	err := p.data.WriteHeader(&archive.Header{
+		Name:    "." + path,
+		Size:    size,
+		Mode:    fi.Mode(),
+		User:    "root",
+		Group:   "root",
+		ModTime: fi.ModTime(),
+	})
+	if err != nil {
 		return err
 	}
 
-	if _, err := io.Copy(p.data, io.TeeReader(r, digest)); err != nil {
+	_, err = io.Copy(p.data, io.TeeReader(r, digest))
+	if err != nil {
 		return err
 	}
 
@@ -138,15 +133,13 @@ func (p *Package) AddLink(dst, src string) error {
 		return err
 	}
 
-	return p.data.WriteHeader(&tar.Header{
-		Typeflag: tar.TypeSymlink,
+	return p.data.WriteHeader(&archive.Header{
 		Name:     "." + dst,
-		Linkname: src,
-		Mode:     0777,
-		Uname:    "root",
-		Gname:    "root",
+		LinkName: src,
+		Mode:     os.FileMode(0777) | os.ModeSymlink,
+		User:     "root",
+		Group:    "root",
 		ModTime:  p.modTime,
-		Format:   tar.FormatGNU,
 	})
 }
 

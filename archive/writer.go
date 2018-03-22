@@ -52,14 +52,14 @@ func (w *Writer) Close() error {
 	return w.compress.Close()
 }
 
-// Write advances to the next entry in the archive (see archive/tar Writer.Write for details).
+// Write writes a file in the archive.
 func (w *Writer) Write(b []byte) (int, error) {
 	return w.tar.Write(b)
 }
 
-// WriteHeader writes a given tar.Header to the archive (see archive/tar Writer.WriteHeader for details).
-func (w *Writer) WriteHeader(h *tar.Header) error {
-	return w.tar.WriteHeader(h)
+// WriteHeader writes a given file header to the archive.
+func (w *Writer) WriteHeader(h *Header) error {
+	return w.tar.WriteHeader(h.TarHeader())
 }
 
 // WriterBuffer represents an archive writer buffer instance.

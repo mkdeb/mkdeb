@@ -1,7 +1,6 @@
 package main
 
 import (
-	"archive/tar"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -294,28 +293,23 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 		}
 
 		if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream); ok {
-			fi := h.FileInfo()
-
-			fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(fi.Size())))
+			fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(h.Size)))
 
 			if confFile {
 				p.RegisterConfFile(path)
 			}
 
-			switch h.Typeflag {
-			case tar.TypeDir:
-				if err := p.AddDir(path, fi.Mode()); err != nil {
-					return nil, errors.Wrapf(err, "cannot add %q file", name)
-				}
-
-			case tar.TypeReg, tar.TypeRegA:
-				if err := p.AddFile(path, src, fi); err != nil {
+			if h.Mode&os.ModeDir == os.ModeDir {
+				if err := p.AddDir(path, h.Mode); err != nil {
 					return nil, errors.Wrapf(err, "cannot add %q dir", name)
 				}
-
-			case tar.TypeSymlink:
-				if err := p.AddLink(path, h.Linkname); err != nil {
+			} else if h.Mode&os.ModeSymlink == os.ModeSymlink {
+				if err := p.AddLink(path, h.LinkName); err != nil {
 					return nil, errors.Wrapf(err, "cannot add %q link", name)
+				}
+			} else {
+				if err := p.AddFile(path, src, h.FileInfo()); err != nil {
+					return nil, errors.Wrapf(err, "cannot add %q file", name)
 				}
 			}
 		}
