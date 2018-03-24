@@ -249,6 +249,9 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, fr
 	switch typ.MIME.Subtype {
 	case "gzip", "x-bzip2", "x-xz":
 		f = handler.Tar
+
+	case "zip":
+		f = handler.Zip
 	}
 
 	err = f(p, recipe, from, typ.MIME.Subtype)
