@@ -1,4 +1,4 @@
-package main
+package print
 
 import (
 	"fmt"
@@ -7,16 +7,16 @@ import (
 	"github.com/mgutz/ansi"
 )
 
-func printError(s string, args ...interface{}) {
+func Error(s string, args ...interface{}) {
 	fmt.Fprint(os.Stderr, ansi.Color("Error: ", "red"))
 	fmt.Fprintf(os.Stderr, s+"\n", args...)
 }
 
-func printStart(s string, args ...interface{}) {
+func Start(s string, args ...interface{}) {
 	print("green", s, args...)
 }
 
-func printStep(s string, args ...interface{}) {
+func Step(s string, args ...interface{}) {
 	print("blue", s, args...)
 }
 

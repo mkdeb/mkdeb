@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"./internal/print"
+
 	humanize "github.com/dustin/go-humanize"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
@@ -19,9 +21,9 @@ var cleanCommand = cli.Command{
 func execClean(ctx *cli.Context) error {
 	var size int64
 
-	printStart("Clean")
+	print.Start("Clean")
 
-	printStep("Removing files from cache...")
+	print.Step("Removing files from cache...")
 
 	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -43,7 +45,7 @@ func execClean(ctx *cli.Context) error {
 		return nil
 	})
 
-	printStep("Result")
+	print.Step("Result")
 	fmt.Printf("🗑   Operation freed %s of disk space\n", humanize.Bytes(uint64(size)))
 
 	return err

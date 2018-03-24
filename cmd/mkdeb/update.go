@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"./internal/print"
+
 	"github.com/urfave/cli"
 	"mkdeb.sh/repository"
 )
@@ -23,11 +25,11 @@ var updateCommand = cli.Command{
 func execUpdate(ctx *cli.Context) error {
 	r := repository.NewRepository(repositoryDir)
 	if !r.Exists() {
-		printStep("Initializing repository...")
+		print.Step("Initializing repository...")
 		return r.Init(os.Stdout)
 	}
 
-	printStep("Updating repository...")
+	print.Step("Updating repository...")
 
 	err := r.Update(os.Stdout, ctx.Bool("reset"))
 	if err == repository.ErrAlreadyUpToDate {

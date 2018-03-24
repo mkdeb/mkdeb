@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"./internal/print"
+
 	humanize "github.com/dustin/go-humanize"
 	"github.com/mgutz/ansi"
 	"github.com/pkg/errors"
@@ -61,7 +63,7 @@ func execBuild(ctx *cli.Context) error {
 			return errEmptyVersion
 		}
 
-		printStart("Package %s", ansi.Color(name, "green+b"))
+		print.Start("Package %s", ansi.Color(name, "green+b"))
 
 		recipe, err := repository.NewRepository(repositoryDir).Recipe(name)
 		if err != nil {
@@ -76,7 +78,7 @@ func execBuild(ctx *cli.Context) error {
 			}
 		}
 
-		printStep("Opening %q upstream archive...", from)
+		print.Step("Opening %q upstream archive...", from)
 
 		f, err := os.Open(from)
 		if err != nil {
@@ -92,7 +94,7 @@ func execBuild(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed to create package")
 		}
 
-		printStep("Result")
+		print.Step("Result")
 		fmt.Printf("📦   %s\n", info)
 	}
 
@@ -151,7 +153,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 		}
 	}
 
-	printStep("Downloading %q...", url)
+	print.Step("Downloading %q...", url)
 
 	req, err := http.Get(url)
 	if err != nil {
@@ -259,7 +261,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	defer src.Close()
 
 	if len(recipe.ControlFiles) > 0 {
-		printStep("Adding control files...")
+		print.Step("Adding control files...")
 
 		for _, f := range recipe.ControlFiles {
 			name := f.FileInfo.Name()
@@ -277,7 +279,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 		}
 	}
 
-	printStep("Adding upstream files...")
+	print.Step("Adding files upstream archive...")
 
 	for {
 		h, err := src.Next()
@@ -316,7 +318,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	}
 
 	if len(recipe.RecipeFiles) > 0 {
-		printStep("Adding recipe files...")
+		print.Step("Adding recipe files...")
 
 		for _, f := range recipe.RecipeFiles {
 			name := f.FileInfo.Name()
@@ -341,7 +343,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	}
 
 	if len(recipe.Dirs) > 0 {
-		printStep("Adding recipe directories...")
+		print.Step("Adding recipe directories...")
 
 		for _, path := range recipe.Dirs {
 			fmt.Printf("append %q\n", path)
@@ -353,7 +355,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	}
 
 	if len(recipe.Links) > 0 {
-		printStep("Adding recipe symbolic links...")
+		print.Step("Adding recipe symbolic links...")
 
 		for dst, src := range recipe.Links {
 			fmt.Printf("link %q to %q\n", src, dst)

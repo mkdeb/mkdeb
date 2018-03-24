@@ -5,6 +5,8 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"./internal/print"
+
 	"github.com/urfave/cli"
 )
 
@@ -16,7 +18,7 @@ var (
 
 func main() {
 	if err := run(); err != nil {
-		printError("%s", err)
+		print.Error("%s", err)
 		os.Exit(1)
 	}
 }
