@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -11,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"./internal/handler"
 	"./internal/print"
 
 	humanize "github.com/dustin/go-humanize"
@@ -18,7 +18,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	filetype "gopkg.in/h2non/filetype.v1"
-	"mkdeb.sh/archive"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
 	"mkdeb.sh/repository"
@@ -78,18 +77,12 @@ func execBuild(ctx *cli.Context) error {
 			}
 		}
 
-		print.Step("Opening %q upstream archive...", from)
-
-		f, err := os.Open(from)
-		if err != nil {
-			return errors.Wrap(err, "failed to open upstream archive")
-		}
-		defer f.Close()
+		print.Step("Using %q upstream archive...", from)
 
 		// Get for output file path (will be overwritten if left empty)
-		path := ctx.String("to")
+		to := ctx.String("to")
 
-		info, err := createPackage(arch, version, ctx.Int("revision"), recipe, f, path)
+		info, err := createPackage(arch, version, ctx.Int("revision"), recipe, from, to)
 		if err != nil {
 			return errors.Wrap(err, "failed to create package")
 		}
@@ -179,10 +172,8 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	return path, nil
 }
 
-func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r io.ReadCloser,
-	path string) (*packageInfo, error) {
-
-	var compress int
+func createPackage(arch, version string, revision int, recipe *recipe.Recipe, from, to string) (*packageInfo, error) {
+	var f handler.Func
 
 	if arch != "" {
 		v, ok := recipe.Source.ArchMapping[arch]
@@ -229,37 +220,6 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 		p.Control.Set("Maintainer", recipe.Maintainer)
 	}
 
-	// Detect source archive type based on its magic number signature
-	br := bufio.NewReader(r)
-
-	buf, err := br.Peek(512)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot peek data")
-	}
-
-	typ, err := filetype.Match(buf)
-	if err != nil {
-		return nil, err
-	}
-
-	switch typ.MIME.Subtype {
-	case "gzip":
-		compress = archive.CompressGzip
-
-	case "x-bzip2":
-		compress = archive.CompressBzip2
-
-	case "x-xz":
-		compress = archive.CompressXZ
-	}
-
-	// Create a new reader for the source archive
-	src, err := archive.NewReader(br, compress)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot open upstream archive")
-	}
-	defer src.Close()
-
 	if len(recipe.ControlFiles) > 0 {
 		print.Step("Adding control files...")
 
@@ -281,40 +241,19 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 
 	print.Step("Adding files upstream archive...")
 
-	for {
-		h, err := src.Next()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return nil, err
-		}
+	typ, err := filetype.MatchFile(from)
+	if err != nil {
+		return nil, err
+	}
 
-		name := h.Name
-		if recipe.Source.Strip > 0 {
-			name = stripName(name, recipe.Source.Strip)
-		}
+	switch typ.MIME.Subtype {
+	case "gzip", "x-bzip2", "x-xz":
+		f = handler.Tar
+	}
 
-		if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream); ok {
-			fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(h.Size)))
-
-			if confFile {
-				p.RegisterConfFile(path)
-			}
-
-			if h.Mode&os.ModeDir == os.ModeDir {
-				if err := p.AddDir(path, h.Mode); err != nil {
-					return nil, errors.Wrapf(err, "cannot add %q dir", name)
-				}
-			} else if h.Mode&os.ModeSymlink == os.ModeSymlink {
-				if err := p.AddLink(path, h.LinkName); err != nil {
-					return nil, errors.Wrapf(err, "cannot add %q link", name)
-				}
-			} else {
-				if err := p.AddFile(path, src, h.FileInfo()); err != nil {
-					return nil, errors.Wrapf(err, "cannot add %q file", name)
-				}
-			}
-		}
+	err = f(p, recipe, from, typ.MIME.Subtype)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(recipe.RecipeFiles) > 0 {
@@ -367,12 +306,12 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	}
 
 	// Set default file path is empty
-	if path == "" {
-		path = fmt.Sprintf("%s_%s_%s.deb", p.Name, p.Version, p.Arch)
+	if to == "" {
+		to = fmt.Sprintf("%s_%s_%s.deb", p.Name, p.Version, p.Arch)
 	}
 
 	info := &packageInfo{
-		Path: path,
+		Path: to,
 	}
 
 	file, err := os.Create(info.Path)
@@ -392,24 +331,6 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, r 
 	info.Size = fi.Size()
 
 	return info, nil
-}
-
-func stripName(name string, n int) string {
-	if n == 0 {
-		return name
-	}
-
-	count := n
-	for count > 0 {
-		parts := strings.SplitN(name, "/", 2)
-		if len(parts) == 2 {
-			name = parts[1]
-		}
-
-		count--
-	}
-
-	return name
 }
 
 func getCachePath(pkgName, name string) string {
