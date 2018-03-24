@@ -97,8 +97,8 @@ func execBuild(ctx *cli.Context) error {
 func parseRef(input string) (string, string, string) {
 	var name, arch, version string
 
-	if strings.Contains(input, "@") {
-		parts := strings.SplitN(input, "@", 2)
+	if strings.Contains(input, "=") {
+		parts := strings.SplitN(input, "=", 2)
 		input = parts[0]
 		version = parts[1]
 	}
