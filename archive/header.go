@@ -25,7 +25,21 @@ func (h *Header) FileInfo() os.FileInfo {
 
 // TarHeader returns an tar.Header for the archive header.
 func (h *Header) TarHeader() *tar.Header {
+	var tf byte
+
+	switch {
+	case h.Mode&os.ModeDir == os.ModeDir:
+		tf = tar.TypeDir
+
+	case h.Mode&os.ModeSymlink == os.ModeSymlink:
+		tf = tar.TypeSymlink
+
+	default:
+		tf = tar.TypeReg
+	}
+
 	return &tar.Header{
+		Typeflag: tf,
 		Name:     h.Name,
 		Linkname: h.LinkName,
 		Size:     h.Size,
