@@ -50,7 +50,7 @@ var buildCommand = cli.Command{
 
 func execBuild(ctx *cli.Context) error {
 	if ctx.String("to") != "" && ctx.NArg() > 1 {
-		return errors.New("can't use \"--to\" when multiple packages are being built")
+		return errors.New("can't use \"--to\" flag when multiple packages are being built")
 	}
 
 	for _, arg := range ctx.Args() {
