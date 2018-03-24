@@ -1,5 +1,7 @@
 # -*- Makefile -*-
 
+PREFIX ?= /usr/local
+
 GO ?= go
 GOLINT ?= golint
 
@@ -34,6 +36,12 @@ test-bin:
 	@for pkg in $(PKG_LIST); do \
 		$(GO) test -cover -v ./$$pkg; \
 	done
+
+install: install-bin
+
+install-bin: build-bin
+	@$(call print_step,Installing binaries...)
+	@install -d -m 0755 $(PREFIX)/bin && install -m 0755 bin/* $(PREFIX)/bin/
 
 lint: lint-bin
 
