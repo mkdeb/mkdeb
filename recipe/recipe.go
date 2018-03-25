@@ -18,9 +18,9 @@ type Recipe struct {
 	Description string            `yaml:"description"`
 	Homepage    string            `yaml:"homepage"`
 	Maintainer  string            `yaml:"maintainer"`
-	Source      Source            `yaml:"source"`
-	Control     Control           `yaml:"control"`
-	Install     Install           `yaml:"install"`
+	Source      *Source           `yaml:"source"`
+	Control     *Control          `yaml:"control"`
+	Install     *Install          `yaml:"install"`
 	Dirs        []string          `yaml:"dirs"`
 	Links       map[string]string `yaml:"links"`
 
@@ -39,8 +39,9 @@ func LoadRecipe(path string) (*Recipe, error) {
 		return nil, err
 	}
 
-	if r.Version != 1 {
-		return nil, ErrUnsupportedVersion
+	err = r.validate()
+	if err != nil {
+		return nil, err
 	}
 
 	// Load control and recipe files references from filesystem
@@ -87,6 +88,39 @@ func (r *Recipe) InstallPath(path string, m InstallMap) (string, bool, bool) {
 	}
 
 	return "", false, false
+}
+
+func (r *Recipe) validate() error {
+	switch {
+	case r.Version != 1:
+		return ErrUnsupportedVersion
+
+	case r.Name == "":
+		return ErrMissingName
+
+	case r.Description == "":
+		return ErrMissingDescription
+
+	case r.Maintainer == "":
+		return ErrMissingMaintainer
+
+	case r.Source == nil:
+		return ErrMissingSource
+
+	case r.Source.URL == "":
+		return ErrMissingSourceURL
+
+	case r.Control == nil:
+		return ErrMissingControl
+
+	case r.Control.Description == "":
+		return ErrMissingControlDescription
+
+	case r.Install == nil:
+		return ErrMissingInstall
+	}
+
+	return nil
 }
 
 func pathMatch(pattern, value string) bool {

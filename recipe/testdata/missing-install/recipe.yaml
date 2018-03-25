@@ -1,0 +1,13 @@
+---
+version: 1
+
+name: foo
+description: a great description
+maintainer: Foo Bar <foo@example.org>
+homepage: https://example.org/
+
+source:
+  url: https://example.org/path/to/foo-{{ .Version }}.{{ .Arch }}.tar.gz
+
+control:
+  description: A long package description providing us with enough information on the upstream software.

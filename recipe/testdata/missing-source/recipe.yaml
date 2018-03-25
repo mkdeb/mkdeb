@@ -1,0 +1,20 @@
+---
+version: 1
+
+name: foo
+description: a great description
+maintainer: Foo Bar <foo@example.org>
+homepage: https://example.org/
+
+control:
+  description: A long package description providing us with enough information on the upstream software.
+
+install:
+  recipe:
+    /etc/init.d:
+    - pattern: init
+      rename: foo
+      conffile: true
+  upstream:
+    /usr/bin:
+    - pattern: foo

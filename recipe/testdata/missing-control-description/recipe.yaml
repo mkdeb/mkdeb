@@ -1,0 +1,23 @@
+---
+version: 1
+
+name: foo
+description: a great description
+maintainer: Foo Bar <foo@example.org>
+homepage: https://example.org/
+
+source:
+  url: https://example.org/path/to/foo-{{ .Version }}.{{ .Arch }}.tar.gz
+
+control:
+  priority: optional
+
+install:
+  recipe:
+    /etc/init.d:
+    - pattern: init
+      rename: foo
+      conffile: true
+  upstream:
+    /usr/bin:
+    - pattern: foo
