@@ -12,6 +12,7 @@ import (
 
 	"./internal/handler"
 	"./internal/print"
+	"./internal/progress"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/mgutz/ansi"
@@ -164,10 +165,31 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	}
 	defer f.Close()
 
-	_, err = io.Copy(f, req.Body)
+	contentLength := uint64(req.ContentLength)
+	printLength := 0
+
+	progressFunc := func(s uint64) {
+		var str string
+
+		if s == contentLength {
+			str = fmt.Sprintf("\rdownload %s", humanize.Bytes(contentLength))
+		} else {
+			str = fmt.Sprintf("\rdownload %s/%s", humanize.Bytes(s), humanize.Bytes(contentLength))
+		}
+
+		fmt.Print(str)
+		if diff := printLength - len(str); diff > 0 {
+			fmt.Print(strings.Repeat(" ", diff))
+		}
+		printLength = len(str)
+	}
+
+	_, err = io.Copy(f, progress.NewReader(req.Body, progressFunc))
 	if err != nil {
 		return "", err
 	}
+
+	fmt.Print("\n")
 
 	return path, nil
 }
