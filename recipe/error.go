@@ -5,7 +5,7 @@ import "errors"
 var (
 	// ErrMissingControl represents a missing control error.
 	ErrMissingControl = errors.New("missing control")
-	// ErrMissingControlURL represents a missing control description error.
+	// ErrMissingControlDescription represents a missing control description error.
 	ErrMissingControlDescription = errors.New("missing control description")
 	// ErrMissingDescription represents a missing description error.
 	ErrMissingDescription = errors.New("missing description")
