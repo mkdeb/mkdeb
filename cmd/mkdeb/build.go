@@ -29,6 +29,10 @@ var buildCommand = cli.Command{
 	Usage:  "build Debian package",
 	Action: execBuild,
 	Flags: []cli.Flag{
+		cli.UintFlag{
+			Name:  "epoch, e",
+			Usage: "package version epoch",
+		},
 		cli.StringFlag{
 			Name:  "from, f",
 			Usage: "upstream archive path",
@@ -81,9 +85,14 @@ func execBuild(ctx *cli.Context) error {
 		print.Step("Using %q upstream archive...", from)
 
 		// Get for output file path (will be overwritten if left empty)
+		epoch := ctx.Uint("epoch")
+		if epoch == 0 {
+			epoch = recipe.Control.Version.Epoch
+		}
+
 		to := ctx.String("to")
 
-		info, err := createPackage(arch, version, ctx.Int("revision"), recipe, from, to)
+		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), recipe, from, to)
 		if err != nil {
 			return errors.Wrap(err, "failed to create package")
 		}
@@ -194,7 +203,9 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	return path, nil
 }
 
-func createPackage(arch, version string, revision int, recipe *recipe.Recipe, from, to string) (*packageInfo, error) {
+func createPackage(arch, version string, epoch uint, revision int, recipe *recipe.Recipe, from,
+	to string) (*packageInfo, error) {
+
 	var f handler.Func
 
 	if arch != "" {
@@ -205,7 +216,7 @@ func createPackage(arch, version string, revision int, recipe *recipe.Recipe, fr
 		arch = v
 	}
 
-	p, err := deb.NewPackage(recipe.Name, arch, version, revision)
+	p, err := deb.NewPackage(recipe.Name, arch, version, epoch, revision)
 	if err != nil {
 		return nil, err
 	}

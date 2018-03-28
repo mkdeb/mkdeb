@@ -32,7 +32,7 @@ type Package struct {
 }
 
 // NewPackage creates a new Debian package instance.
-func NewPackage(name, arch, version string, revision int) (*Package, error) {
+func NewPackage(name, arch, version string, epoch uint, revision int) (*Package, error) {
 	// Initialize archives that will receive internal package data
 	control, err := archive.NewWriterBuffer(archive.CompressGzip)
 	if err != nil {
@@ -47,7 +47,7 @@ func NewPackage(name, arch, version string, revision int) (*Package, error) {
 	return &Package{
 		Name:    name,
 		Arch:    arch,
-		Version: NewVersion(version, fmt.Sprintf("~mkdeb%d", revision)),
+		Version: NewVersion(epoch, version, fmt.Sprintf("1~mkdeb%d", revision)),
 		Control: NewControl(),
 
 		modTime: time.Now(),

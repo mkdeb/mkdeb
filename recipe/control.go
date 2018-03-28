@@ -2,8 +2,11 @@ package recipe
 
 // Control represents a recipe control instance.
 type Control struct {
-	Section     string   `yaml:"section"`
-	Priority    string   `yaml:"priority"`
+	Section  string `yaml:"section"`
+	Priority string `yaml:"priority"`
+	Version  struct {
+		Epoch uint `yaml:"epoch"`
+	} `yaml:"version"`
 	Depends     []string `yaml:"depends"`
 	PreDepends  []string `yaml:"pre-depends"`
 	Recommends  []string `yaml:"recommends"`
