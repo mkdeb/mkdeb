@@ -343,7 +343,12 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 
 	// Set default file path is empty
 	if to == "" {
-		to = fmt.Sprintf("%s_%s_%s.deb", p.Name, p.Version, p.Arch)
+		v := p.Version.Upstream
+		if p.Version.Revision != "" {
+			v += "-" + p.Version.Revision
+		}
+
+		to = fmt.Sprintf("%s_%s_%s.deb", p.Name, v, p.Arch)
 	}
 
 	info := &packageInfo{
