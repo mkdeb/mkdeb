@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -18,6 +19,9 @@ import (
 	"github.com/mgutz/ansi"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"golang.org/x/text/feature/plural"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	filetype "gopkg.in/h2non/filetype.v1"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
@@ -37,6 +41,10 @@ var buildCommand = cli.Command{
 			Name:  "from, f",
 			Usage: "upstream archive path",
 		},
+		cli.BoolFlag{
+			Name:  "install, i",
+			Usage: "install package after build",
+		},
 		cli.IntFlag{
 			Name:  "revision, r",
 			Usage: "package version revision",
@@ -54,6 +62,15 @@ var buildCommand = cli.Command{
 }
 
 func execBuild(ctx *cli.Context) error {
+	var pkgs []*packageInfo
+
+	install := ctx.Bool("install")
+	if install {
+		if _, err := exec.LookPath("apt-get"); err != nil {
+			return errors.New("flag \"--install\" can only be used on Debian-based systems")
+		}
+	}
+
 	if ctx.String("to") != "" && ctx.NArg() > 1 {
 		return errors.New("can't use \"--to\" flag when multiple packages are being built")
 	}
@@ -99,6 +116,30 @@ func execBuild(ctx *cli.Context) error {
 
 		print.Step("Result")
 		fmt.Printf("📦   %s\n", info)
+
+		if install {
+			pkgs = append(pkgs, info)
+		}
+	}
+
+	if install && len(pkgs) > 0 {
+		print.Start("Install packages")
+
+		if err := installPackages(pkgs); err != nil {
+			return err
+		}
+
+		message.Set(language.English, "build.install", plural.Selectf(1, "%d",
+			plural.One, "Operation installed %d package",
+			plural.Other, "Operation installed %d packages",
+		))
+
+		p := message.NewPrinter(language.English)
+
+		print.Step("Result")
+		fmt.Print("📋   ")
+		p.Printf("build.install", len(pkgs))
+		p.Println()
 	}
 
 	return nil
@@ -348,7 +389,12 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 			v += "-" + p.Version.Revision
 		}
 
-		to = fmt.Sprintf("%s_%s_%s.deb", p.Name, v, p.Arch)
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot get current directory")
+		}
+
+		to = filepath.Join(wd, fmt.Sprintf("%s_%s_%s.deb", p.Name, v, p.Arch))
 	}
 
 	info := &packageInfo{
@@ -372,6 +418,26 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 	info.Size = fi.Size()
 
 	return info, nil
+}
+
+func installPackages(pkgs []*packageInfo) error {
+	var paths []string
+
+	for _, pkg := range pkgs {
+		paths = append(paths, pkg.Path)
+	}
+
+	apt, err := exec.LookPath("apt-get")
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(apt, append([]string{"install", "--reinstall", "-y"}, paths...)...)
+	cmd.Env = append(os.Environ(), "DEBIAN_FRONTEND=noninteractive")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	return cmd.Run()
 }
 
 func getCachePath(pkgName, name string) string {
