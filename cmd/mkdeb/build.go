@@ -75,6 +75,13 @@ func execBuild(ctx *cli.Context) error {
 		return errors.New("can't use \"--to\" flag when multiple packages are being built")
 	}
 
+	repo := repository.NewRepository(repositoryDir)
+	if !repo.Exists() {
+		if err := ctx.App.Run([]string{ctx.App.Name, "update"}); err != nil {
+			return errors.Wrap(err, "failed to initialize repository")
+		}
+	}
+
 	for _, arg := range ctx.Args() {
 		name, arch, version := parseRef(arg)
 		if arch == "" {
