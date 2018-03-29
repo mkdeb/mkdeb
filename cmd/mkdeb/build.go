@@ -64,6 +64,10 @@ var buildCommand = cli.Command{
 func execBuild(ctx *cli.Context) error {
 	var pkgs []*packageInfo
 
+	if ctx.NArg() == 0 {
+		cli.ShowCommandHelpAndExit(ctx, "build", 1)
+	}
+
 	install := ctx.Bool("install")
 	if install {
 		if _, err := exec.LookPath("apt-get"); err != nil {
