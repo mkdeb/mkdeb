@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"./internal/handler"
-	"./internal/print"
-	"./internal/progress"
+	"mkdeb.sh/cmd/mkdeb/internal/handler"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
+	"mkdeb.sh/cmd/mkdeb/internal/progress"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/mgutz/ansi"

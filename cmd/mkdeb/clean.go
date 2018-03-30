@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"./internal/print"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/pkg/errors"

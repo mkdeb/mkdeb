@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"./internal/print"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 
 	"github.com/urfave/cli"
 	"mkdeb.sh/repository"

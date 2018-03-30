@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"./internal/print"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 
 	"github.com/urfave/cli"
 )
