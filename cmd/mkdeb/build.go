@@ -179,6 +179,12 @@ func parseRef(input string) (string, string, string) {
 func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (string, error) {
 	var path string
 
+	v, ok := recipe.Source.ArchMapping[arch]
+	if !ok {
+		return "", errUnsupportedArch
+	}
+	arch = v
+
 	// Generate URL from recipe template
 	buf := bytes.NewBuffer(nil)
 
@@ -260,12 +266,8 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 
 	var f handler.Func
 
-	if arch != "" {
-		v, ok := recipe.Source.ArchMapping[arch]
-		if !ok {
-			return nil, errUnsupportedArch
-		}
-		arch = v
+	if _, ok := recipe.Source.ArchMapping[arch]; !ok {
+		return nil, errUnsupportedArch
 	}
 
 	p, err := deb.NewPackage(recipe.Name, arch, version, epoch, revision)
