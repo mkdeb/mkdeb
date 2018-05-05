@@ -51,8 +51,8 @@ func (r *Repository) Init(progress io.Writer) error {
 }
 
 // Update updates the recipes repository from the remote origin.
-func (r *Repository) Update(progress io.Writer, reset bool) error {
-	if reset {
+func (r *Repository) Update(progress io.Writer, force bool) error {
+	if force {
 		if err := os.RemoveAll(r.Path); err != nil {
 			return errors.Wrap(err, "cannot reset repository")
 		}

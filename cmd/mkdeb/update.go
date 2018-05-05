@@ -16,8 +16,8 @@ var updateCommand = cli.Command{
 	Action: execUpdate,
 	Flags: []cli.Flag{
 		cli.BoolFlag{
-			Name:  "reset",
-			Usage: "force repository reset",
+			Name:  "force",
+			Usage: "force actions and repair dangling state",
 		},
 	},
 }
@@ -31,7 +31,7 @@ func execUpdate(ctx *cli.Context) error {
 
 	print.Step("Updating repository...")
 
-	err := r.Update(os.Stdout, ctx.Bool("reset"))
+	err := r.Update(os.Stdout, ctx.Bool("force"))
 	if err == repository.ErrAlreadyUpToDate {
 		fmt.Println(err)
 		return nil
