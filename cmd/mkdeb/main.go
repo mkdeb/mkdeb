@@ -13,6 +13,7 @@ import (
 var (
 	configDir     string
 	cacheDir      string
+	indexDir      string
 	repositoryDir string
 )
 
@@ -32,6 +33,7 @@ func run() error {
 
 	configDir = filepath.Join(usr.HomeDir, ".mkdeb")
 	cacheDir = filepath.Join(configDir, "cache")
+	indexDir = filepath.Join(configDir, "recipes/index")
 	repositoryDir = filepath.Join(configDir, "recipes/default")
 
 	// Create cache directory if missing
@@ -48,6 +50,7 @@ func run() error {
 	app.Commands = []cli.Command{
 		buildCommand,
 		cleanCommand,
+		searchCommand,
 		updateCommand,
 		versionCommand,
 	}
