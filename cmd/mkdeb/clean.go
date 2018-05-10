@@ -13,9 +13,10 @@ import (
 )
 
 var cleanCommand = cli.Command{
-	Name:   "clean",
-	Usage:  "clean packaging cache",
-	Action: execClean,
+	Name:      "clean",
+	Usage:     "clean packaging cache",
+	Action:    execClean,
+	ArgsUsage: " ",
 }
 
 func execClean(ctx *cli.Context) error {

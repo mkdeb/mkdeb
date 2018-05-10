@@ -20,8 +20,8 @@ import (
 var searchCommand = cli.Command{
 	Name:      "search",
 	Usage:     "search for recipes",
-	ArgsUsage: "term",
 	Action:    execSearch,
+	ArgsUsage: "term",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "desc",

@@ -10,9 +10,10 @@ import (
 var version = "0.1.0dev"
 
 var versionCommand = cli.Command{
-	Name:   "version",
-	Usage:  "print version information",
-	Action: execVersion,
+	Name:      "version",
+	Usage:     "print version information",
+	Action:    execVersion,
+	ArgsUsage: " ",
 }
 
 func execVersion(ctx *cli.Context) error {

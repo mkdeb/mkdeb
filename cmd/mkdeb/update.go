@@ -17,9 +17,10 @@ import (
 )
 
 var updateCommand = cli.Command{
-	Name:   "update",
-	Usage:  "update recipes repository",
-	Action: execUpdate,
+	Name:      "update",
+	Usage:     "update recipes repository",
+	Action:    execUpdate,
+	ArgsUsage: " ",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
 			Name:  "index-only",

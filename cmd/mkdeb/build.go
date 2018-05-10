@@ -29,9 +29,10 @@ import (
 )
 
 var buildCommand = cli.Command{
-	Name:   "build",
-	Usage:  "build Debian package",
-	Action: execBuild,
+	Name:      "build",
+	Usage:     "build Debian package",
+	Action:    execBuild,
+	ArgsUsage: "recipe...",
 	Flags: []cli.Flag{
 		cli.UintFlag{
 			Name:  "epoch, e",
