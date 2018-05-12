@@ -81,8 +81,7 @@ lint-bin:
 release: source
 	@for arch in $(DIST_ARCH); do \
 		os=$${arch%/*}; arch=$${arch#*/}; \
-		$(MAKE) GOOS=$$os GOARCH=$$arch build; \
-		( \
+		$(MAKE) GOOS=$$os GOARCH=$$arch build && ( \
 			test $$os = windows && \
 			zip -jq $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.zip \
 				bin/* LICENSE README.md || \
