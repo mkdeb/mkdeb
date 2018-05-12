@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var version = "0.1.0dev"
+var version = "0.1.0"
 
 var versionCommand = cli.Command{
 	Name:      "version",
