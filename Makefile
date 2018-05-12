@@ -5,10 +5,33 @@ PREFIX ?= /usr/local
 GO ?= go
 GOLINT ?= golint
 
+GOOS ?= $(shell $(GO) env GOOS)
+GOARCH ?= $(shell $(GO) env GOARCH)
+
 GIT_HOOKS := $(patsubst misc/git-hooks/%,.git/hooks/%,$(wildcard misc/git-hooks/*))
 
 BIN_LIST := $(patsubst cmd/%,%,$(wildcard cmd/*))
 PKG_LIST = $(call uniq,$(dir $(wildcard */*.go)))
+
+DIST_DIR ?= dist
+
+DIST_ARCH = \
+	darwin/386 \
+	darwin/amd64 \
+	freebsd/386 \
+	freebsd/amd64 \
+	linux/386 \
+	linux/amd64 \
+	linux/arm \
+	linux/arm64 \
+	netbsd/386 \
+	netbsd/amd64 \
+	openbsd/386 \
+	openbsd/amd64 \
+	windows/386 \
+	windows/amd64
+
+DIST_VERSION = $(shell sed -e 's/^var version = "\(.*\)"$$/\1/g' -e t -e d cmd/mkdeb/version.go)
 
 tput = $(shell tty 1>/dev/null 2>&1 && tput $1)
 print_error = (echo "$(call tput,setaf 1)Error:$(call tput,sgr0) $1" && false)
@@ -19,12 +42,12 @@ all: build
 
 clean:
 	@$(call print_step,"Cleaning files...")
-	@rm -rf bin/
+	@rm -rf bin/ dist/
 
 build: build-bin
 
 build-bin:
-	@$(call print_step,"Building binaries...")
+	@$(call print_step,"Building binaries for $(GOOS)/$(GOARCH)...")
 	@for bin in $(BIN_LIST); do \
 		$(GO) build -i -ldflags "-s -w" -o bin/$$bin -v ./cmd/$$bin || $(call print_error,"failed to build $$bin"); \
 	done
@@ -48,6 +71,22 @@ lint: lint-bin
 lint-bin:
 	@$(call print_step,"Linting binaries and packages...")
 	@$(GOLINT) $(BIN_LIST:%=./cmd/%) $(PKG_LIST:%=./%)
+
+release: source
+	@for arch in $(DIST_ARCH); do \
+		os=$${arch%/*}; arch=$${arch#*/}; \
+		$(MAKE) GOOS=$$os GOARCH=$$arch build; \
+		( \
+			test $$os == windows && \
+			zip -jq $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.zip bin/* LICENSE README.md || \
+			tar -czf $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.tar.gz -s ";bin/;;" bin/* LICENSE README.md \
+		) || exit 1; \
+	done
+
+source:
+	@$(call print_step,"Building source archive...")
+	@install -d -m 0755 $(DIST_DIR) && tar -czf $(DIST_DIR)/mkdeb_$(DIST_VERSION).tar.gz \
+		--exclude=.git --exclude=bin --exclude=dist .
 
 # Always install missing Git hooks
 git-hooks: $(GIT_HOOKS)
