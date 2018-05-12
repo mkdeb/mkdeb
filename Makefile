@@ -5,6 +5,12 @@ PREFIX ?= /usr/local
 GO ?= go
 GOLINT ?= golint
 
+ifeq ($(shell uname -s),Darwin)
+TAR ?= gtar
+else
+TAR ?= tar
+endif
+
 GOOS ?= $(shell $(GO) env GOOS)
 GOARCH ?= $(shell $(GO) env GOARCH)
 
@@ -77,9 +83,11 @@ release: source
 		os=$${arch%/*}; arch=$${arch#*/}; \
 		$(MAKE) GOOS=$$os GOARCH=$$arch build; \
 		( \
-			test $$os == windows && \
-			zip -jq $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.zip bin/* LICENSE README.md || \
-			tar -czf $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.tar.gz -s ";bin/;;" bin/* LICENSE README.md \
+			test $$os = windows && \
+			zip -jq $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.zip \
+				bin/* LICENSE README.md || \
+			$(TAR) -czf $(DIST_DIR)/mkdeb_$(DIST_VERSION)_$${os}_$${arch}.tar.gz --transform "flags=r;s|.*\/||" \
+				bin/* LICENSE README.md \
 		) || exit 1; \
 	done
 
