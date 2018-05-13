@@ -2,11 +2,11 @@ package main
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
 
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
 )
 
@@ -26,12 +26,12 @@ func main() {
 
 func run() error {
 	// Get directories paths
-	usr, err := user.Current()
+	dir, err := homedir.Dir()
 	if err != nil {
 		return err
 	}
 
-	configDir = filepath.Join(usr.HomeDir, ".mkdeb")
+	configDir = filepath.Join(dir, ".mkdeb")
 	cacheDir = filepath.Join(configDir, "cache")
 	indexDir = filepath.Join(configDir, "recipes/index")
 	repositoryDir = filepath.Join(configDir, "recipes/default")
