@@ -85,7 +85,7 @@ func (p *Package) AddDir(path string, mode os.FileMode) error {
 	p.dirs[path] = struct{}{}
 
 	return p.data.WriteHeader(&archive.Header{
-		Name:    "." + path,
+		Name:    "." + strings.TrimRight(path, "/") + "/",
 		Mode:    mode | os.ModeDir,
 		User:    "root",
 		Group:   "root",
