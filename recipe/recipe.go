@@ -11,6 +11,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const defaultSourceType = "archive"
+
 // Recipe represents a packaging recipe instance.
 type Recipe struct {
 	Version     int               `yaml:"version"`
@@ -42,6 +44,15 @@ func LoadRecipe(path string) (*Recipe, error) {
 	err = r.validate()
 	if err != nil {
 		return nil, err
+	}
+
+	// Set defaults
+	if r.Source.Type == "" {
+		r.Source.Type = defaultSourceType
+	}
+
+	if len(r.Source.ArchMapping) == 0 {
+		r.Source.ArchMapping = map[string]string{"all": ""}
 	}
 
 	// Load control and recipe files references from filesystem

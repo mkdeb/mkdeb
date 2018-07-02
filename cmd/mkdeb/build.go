@@ -265,7 +265,10 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 func createPackage(arch, version string, epoch uint, revision int, recipe *recipe.Recipe, from,
 	to string) (*packageInfo, error) {
 
-	var f handler.Func
+	var (
+		f       handler.Func
+		subtype string
+	)
 
 	if _, ok := recipe.Source.ArchMapping[arch]; !ok {
 		return nil, errUnsupportedArch
@@ -329,20 +332,30 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 
 	print.Step("Adding files upstream archive...")
 
-	typ, err := filetype.MatchFile(from)
-	if err != nil {
-		return nil, err
+	switch recipe.Source.Type {
+	case "archive":
+		typ, err := filetype.MatchFile(from)
+		if err != nil {
+			return nil, err
+		}
+
+		switch typ.MIME.Subtype {
+		case "gzip", "x-bzip2", "x-xz":
+			f = handler.Tar
+
+		case "zip":
+			f = handler.Zip
+		}
+
+		subtype = typ.MIME.Subtype
+
+	case "file":
+		f = handler.File
+
+	default:
 	}
 
-	switch typ.MIME.Subtype {
-	case "gzip", "x-bzip2", "x-xz":
-		f = handler.Tar
-
-	case "zip":
-		f = handler.Zip
-	}
-
-	err = f(p, recipe, from, typ.MIME.Subtype)
+	err = f(p, recipe, from, subtype)
 	if err != nil {
 		return nil, err
 	}
