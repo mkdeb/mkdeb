@@ -29,9 +29,11 @@ func (h *Header) TarHeader() *tar.Header {
 
 	switch {
 	case h.Mode&os.ModeDir == os.ModeDir:
+		h.Mode &= ^os.ModeDir
 		tf = tar.TypeDir
 
 	case h.Mode&os.ModeSymlink == os.ModeSymlink:
+		h.Mode &= ^os.ModeSymlink
 		tf = tar.TypeSymlink
 
 	default:
