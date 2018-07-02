@@ -77,53 +77,53 @@ func TestRecipeValid(t *testing.T) {
 func TestRecipeUnsupportedVersion(t *testing.T) {
 	r, err := LoadRecipe("testdata/unsupported-version")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrUnsupportedVersion)
+	assert.Equal(t, ErrUnsupportedVersion, err)
 }
 
 func TestRecipeMissingName(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-name")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingName)
+	assert.Equal(t, ErrMissingName, err)
 }
 
 func TestRecipeMissingDescription(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-description")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingDescription)
+	assert.Equal(t, ErrMissingDescription, err)
 }
 
 func TestRecipeMissingMaintainer(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-maintainer")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingMaintainer)
+	assert.Equal(t, ErrMissingMaintainer, err)
 }
 
 func TestRecipeMissingSource(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-source")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingSource)
+	assert.Equal(t, ErrMissingSource, err)
 }
 
 func TestRecipeMissingSourceURL(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-source-url")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingSourceURL)
+	assert.Equal(t, ErrMissingSourceURL, err)
 }
 
 func TestRecipeMissingControl(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-control")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingControl)
+	assert.Equal(t, ErrMissingControl, err)
 }
 
 func TestRecipeMissingControlDescription(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-control-description")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingControlDescription)
+	assert.Equal(t, ErrMissingControlDescription, err)
 }
 
 func TestRecipeMissingInstall(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-install")
 	assert.Nil(t, r)
-	assert.Equal(t, err, ErrMissingInstall)
+	assert.Equal(t, ErrMissingInstall, err)
 }
