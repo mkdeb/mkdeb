@@ -46,6 +46,10 @@ var buildCommand = cli.Command{
 			Name:  "install, i",
 			Usage: "install package after build",
 		},
+		cli.StringFlag{
+			Name:  "recipe, R",
+			Usage: "recipe base path",
+		},
 		cli.IntFlag{
 			Name:  "revision, r",
 			Usage: "package version revision",
@@ -88,6 +92,11 @@ func execBuild(ctx *cli.Context) error {
 	}
 
 	for _, arg := range ctx.Args() {
+		var (
+			recipe *recipe.Recipe
+			err    error
+		)
+
 		name, arch, version := parseRef(arg)
 		if arch == "" {
 			arch = "all"
@@ -98,7 +107,13 @@ func execBuild(ctx *cli.Context) error {
 
 		print.Start("Package %s", ansi.Color(name, "green+b"))
 
-		recipe, err := repository.NewRepository(repositoryDir).Recipe(name)
+		repository := repository.NewRepository(repositoryDir)
+
+		if v := ctx.String("recipe"); v != "" {
+			recipe, err = repository.RecipeFromPath(v)
+		} else {
+			recipe, err = repository.Recipe(name)
+		}
 		if err != nil {
 			return errors.Wrap(err, "failed to load recipe")
 		}
