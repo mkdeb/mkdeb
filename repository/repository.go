@@ -48,7 +48,7 @@ func (r *Repository) Init(progress io.Writer) error {
 
 // Recipe loads a recipe from the repository.
 func (r *Repository) Recipe(name string) (*recipe.Recipe, error) {
-	return r.Recipe(filepath.Join(r.Path, string(name[0]), name))
+	return r.RecipeFromPath(filepath.Join(r.Path, string(name[0]), name))
 }
 
 // RecipeFromPath loads a recipe from the filesystem.
