@@ -7,11 +7,11 @@ import (
 
 	"mkdeb.sh/cmd/mkdeb/internal/columns"
 
+	"facette.io/natsort"
 	"github.com/blevesearch/bleve"
 	_ "github.com/blevesearch/bleve/config"
 	"github.com/blevesearch/bleve/search/highlight/format/ansi"
 	"github.com/blevesearch/bleve/search/query"
-	"github.com/facette/natsort"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"mkdeb.sh/repository"
