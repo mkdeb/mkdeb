@@ -100,6 +100,6 @@ git-hooks: $(GIT_HOOKS)
 
 .git/hooks/%:
 	@$(call print_step,"Installing $* Git hook...")
-	@install -m 0755 misc/git-hooks/$* .git/hooks/$*
+	@(install -d -m 0755 .git/hooks && cd .git/hooks && ln -s ../../misc/git-hooks/$(@F) .)
 
 -include git-hooks

@@ -2,7 +2,7 @@
 
 export IFS=$'\n'
 
-files=$(git diff --cached --diff-filter=ACM --name-only | grep "\.go$")
+files=$(git diff --cached --diff-filter=ACM --name-only | grep "\.go$" | grep -v "^vendor/")
 [ -z "${files}" ] && exit 0
 
 unformatted=$(gofmt -l $files)
