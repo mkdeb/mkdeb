@@ -89,7 +89,7 @@ func LoadRecipe(path string) (*Recipe, error) {
 func (r *Recipe) InstallPath(path string, m InstallMap) (string, bool, bool) {
 	for base, rules := range m {
 		for _, rule := range rules {
-			if pathMatch(rule.Pattern, path) {
+			if pathMatch(rule.Pattern, rule.Exclude, path) {
 				if rule.Rename != "" {
 					path = rule.Rename
 				}
@@ -134,11 +134,16 @@ func (r *Recipe) validate() error {
 	return nil
 }
 
-func pathMatch(pattern, value string) bool {
+func pathMatch(pattern, exclude, value string) bool {
 	// Remove slashes from pattern and value as "path.Match" doesn't handle them
 	pattern = strings.Replace(pattern, "/", "\x1e", -1)
+	exclude = strings.Replace(exclude, "/", "\x1e", -1)
 	value = strings.Replace(value, "/", "\x1e", -1)
 
 	ok, _ := path.Match(pattern, value)
+	if ok {
+		nok, _ := path.Match(exclude, value)
+		ok = !nok
+	}
 	return ok
 }

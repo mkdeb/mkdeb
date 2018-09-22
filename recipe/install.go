@@ -12,6 +12,7 @@ type InstallMap map[string][]InstallRule
 // InstallRule represents a recipe installation rule instance.
 type InstallRule struct {
 	Pattern  string `yaml:"pattern"`
+	Exclude  string `yaml:"exclude"`
 	Rename   string `yaml:"rename"`
 	ConfFile bool   `yaml:"conffile"`
 }
