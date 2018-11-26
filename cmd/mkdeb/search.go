@@ -60,6 +60,7 @@ func execSearch(ctx *cli.Context) error {
 	}
 
 	req := bleve.NewSearchRequest(q)
+	req.Size = 100000 // FIXME: find a better way to handle request size
 	if desc {
 		color := ansi.Underscore
 		if ctx.NArg() == 0 {
