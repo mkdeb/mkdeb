@@ -88,12 +88,12 @@ func execSearch(ctx *cli.Context) error {
 	}
 
 	if result.Total > 0 {
-		items := make([]string, result.Total)
-		for i, hit := range result.Hits {
+		items := []string{}
+		for _, hit := range result.Hits {
 			if !desc {
-				items[i] = hit.ID
+				items = append(items, hit.ID)
 			} else {
-				items[i] = hit.ID + "\t" + hit.Fragments["description"][0]
+				items = append(items, hit.ID+"\t"+hit.Fragments["description"][0])
 			}
 		}
 		natsort.Sort(items)
