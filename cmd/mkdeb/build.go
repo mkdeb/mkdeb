@@ -366,8 +366,10 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 
 	case "file":
 		f = handler.File
+	}
 
-	default:
+	if f == nil {
+		return nil, errUnsupportedSource
 	}
 
 	err = f(p, recipe, from, subtype)
