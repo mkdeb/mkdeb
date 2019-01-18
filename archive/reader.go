@@ -12,23 +12,26 @@ import (
 
 // Reader represents an archive reader instance.
 type Reader struct {
-	compress io.ReadCloser
-	tar      *tar.Reader
+	rc  io.ReadCloser
+	tar *tar.Reader
 }
 
 // NewReader creates a new archive reader instance given an io.Reader and a compression format.
 func NewReader(r io.Reader, compress int) (*Reader, error) {
 	var (
-		cr  io.ReadCloser
+		rc  io.ReadCloser
 		err error
 	)
 
 	switch compress {
+	case CompressNone:
+		rc = ioutil.NopCloser(r)
+
 	case CompressBzip2:
-		cr = ioutil.NopCloser(bzip2.NewReader(r))
+		rc = ioutil.NopCloser(bzip2.NewReader(r))
 
 	case CompressGzip:
-		cr, err = gzip.NewReader(r)
+		rc, err = gzip.NewReader(r)
 		if err != nil {
 			return nil, err
 		}
@@ -38,23 +41,23 @@ func NewReader(r io.Reader, compress int) (*Reader, error) {
 		if err != nil {
 			return nil, err
 		}
-		cr = ioutil.NopCloser(r)
+		rc = ioutil.NopCloser(r)
 
 	default:
 		return nil, ErrUnsupportedCompress
 	}
 
 	return &Reader{
-		compress: cr,
-		tar:      tar.NewReader(cr),
+		rc:  rc,
+		tar: tar.NewReader(rc),
 	}, nil
 }
 
 // Close closes the archive reader instance.
 func (r *Reader) Close() error {
 	// Check whether or not the reader satisfies the io.Closer interface, then close it if yes
-	if r.compress != nil {
-		r.compress.Close()
+	if r.rc != nil {
+		r.rc.Close()
 	}
 
 	return nil

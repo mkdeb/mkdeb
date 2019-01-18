@@ -22,6 +22,9 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 	case "x-bzip2":
 		compress = archive.CompressBzip2
 
+	case "x-tar":
+		compress = archive.CompressNone
+
 	case "x-xz":
 		compress = archive.CompressXZ
 	}

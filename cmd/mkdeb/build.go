@@ -355,7 +355,7 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 		}
 
 		switch typ.MIME.Subtype {
-		case "gzip", "x-bzip2", "x-xz":
+		case "gzip", "x-bzip2", "x-tar", "x-xz":
 			f = handler.Tar
 
 		case "zip":
