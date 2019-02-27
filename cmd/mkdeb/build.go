@@ -250,12 +250,11 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 
 	contentLength := uint64(req.ContentLength)
 	printLength := 0
-
 	progressFunc := func(s uint64) {
 		var str string
 
-		if s == contentLength {
-			str = fmt.Sprintf("\rdownload %s", humanize.Bytes(contentLength))
+		if req.ContentLength == -1 || s == contentLength {
+			str = fmt.Sprintf("\rdownload %s", humanize.Bytes(s))
 		} else {
 			str = fmt.Sprintf("\rdownload %s/%s", humanize.Bytes(s), humanize.Bytes(contentLength))
 		}
