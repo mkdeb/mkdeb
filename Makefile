@@ -5,14 +5,14 @@ PREFIX ?= /usr/local
 GO ?= go
 GOLINT ?= golint
 
+GOOS ?= $(shell $(GO) env GOOS)
+GOARCH ?= $(shell $(GO) env GOARCH)
+
 ifeq ($(shell uname -s),Darwin)
 TAR ?= gtar
 else
 TAR ?= tar
 endif
-
-GOOS ?= $(shell $(GO) env GOOS)
-GOARCH ?= $(shell $(GO) env GOARCH)
 
 GIT_HOOKS := $(patsubst misc/git-hooks/%,.git/hooks/%,$(wildcard misc/git-hooks/*))
 
@@ -55,7 +55,8 @@ build: build-bin
 build-bin:
 	@$(call print_step,"Building binaries for $(GOOS)/$(GOARCH)...")
 	@for bin in $(BIN_LIST); do \
-		$(GO) build -i -ldflags "-s -w" -o bin/$$bin -v ./cmd/$$bin || $(call print_error,"failed to build $$bin"); \
+		$(GO) build -ldflags "-s -w" -tags "$(TAGS)" -i -o bin/$$bin -v ./cmd/$$bin || \
+			$(call print_error,"failed to build $$bin for $(GOOS)/$(GOARCH)"); \
 	done
 
 test: test-bin
@@ -63,7 +64,7 @@ test: test-bin
 test-bin:
 	@$(call print_step,"Testing packages...")
 	@for pkg in $(PKG_LIST); do \
-		$(GO) test -cover -v ./$$pkg; \
+		$(GO) test -cover -tags "$(TAGS)" -v ./$$pkg; \
 	done
 
 install: install-bin
