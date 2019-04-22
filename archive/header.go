@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Header represents an archive file header.
+// Header is an archive file header.
 type Header struct {
 	Name     string
 	LinkName string

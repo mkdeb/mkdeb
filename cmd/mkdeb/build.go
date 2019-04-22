@@ -11,10 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"mkdeb.sh/cmd/mkdeb/internal/handler"
-	"mkdeb.sh/cmd/mkdeb/internal/print"
-	"mkdeb.sh/cmd/mkdeb/internal/progress"
-
 	humanize "github.com/dustin/go-humanize"
 	"github.com/mgutz/ansi"
 	"github.com/pkg/errors"
@@ -23,6 +19,9 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	filetype "gopkg.in/h2non/filetype.v1"
+	"mkdeb.sh/cmd/mkdeb/internal/handler"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
+	"mkdeb.sh/cmd/mkdeb/internal/progress"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
 	"mkdeb.sh/repository"

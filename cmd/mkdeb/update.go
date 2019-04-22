@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"mkdeb.sh/cmd/mkdeb/internal/print"
-
 	"github.com/blevesearch/bleve"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 	"mkdeb.sh/recipe"
 	"mkdeb.sh/repository"
 )

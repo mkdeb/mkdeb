@@ -4,10 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"mkdeb.sh/cmd/mkdeb/internal/print"
-
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
 var (

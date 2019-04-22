@@ -9,7 +9,7 @@ import (
 	wordwrap "github.com/mitchellh/go-wordwrap"
 )
 
-// Control represents a Debian control instance.
+// Control is a Debian control instance.
 type Control struct {
 	name          string
 	version       string

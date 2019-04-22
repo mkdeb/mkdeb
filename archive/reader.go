@@ -10,7 +10,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-// Reader represents an archive reader instance.
+// Reader is an archive reader instance.
 type Reader struct {
 	rc  io.ReadCloser
 	tar *tar.Reader

@@ -16,7 +16,7 @@ const (
 	recipesRepositoryRef = "refs/heads/master"
 )
 
-// Repository represents a recipes repository instance.
+// Repository is a recipes repository instance.
 type Repository struct {
 	Path string
 }

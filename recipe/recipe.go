@@ -13,7 +13,7 @@ import (
 
 const defaultSourceType = "archive"
 
-// Recipe represents a packaging recipe instance.
+// Recipe is a packaging recipe instance.
 type Recipe struct {
 	Version     int               `yaml:"version"`
 	Name        string            `yaml:"name"`

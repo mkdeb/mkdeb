@@ -2,7 +2,7 @@ package recipe
 
 import "os"
 
-// File represents a recipe file instance.
+// File is a recipe file instance.
 type File struct {
 	Path     string
 	FileInfo os.FileInfo

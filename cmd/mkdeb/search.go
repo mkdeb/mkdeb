@@ -5,8 +5,6 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"mkdeb.sh/cmd/mkdeb/internal/columns"
-
 	"facette.io/natsort"
 	"github.com/blevesearch/bleve"
 	_ "github.com/blevesearch/bleve/config"
@@ -14,6 +12,7 @@ import (
 	"github.com/blevesearch/bleve/search/query"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"mkdeb.sh/cmd/mkdeb/internal/columns"
 	"mkdeb.sh/repository"
 )
 
