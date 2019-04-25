@@ -47,7 +47,7 @@ func execClean(ctx *cli.Context) error {
 	})
 
 	print.Step("Result")
-	fmt.Printf("🗑   Operation freed %s of disk space\n", humanize.Bytes(uint64(size)))
+	print.Result("🗑", "Operation freed %s of disk space", humanize.Bytes(uint64(size)))
 
 	return err
 }

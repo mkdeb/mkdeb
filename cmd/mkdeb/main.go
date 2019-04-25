@@ -52,7 +52,20 @@ func run() error {
 		updateCommand,
 		versionCommand,
 	}
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "no-emoji",
+			Usage: "disable emoji in commands output",
+		},
+	}
 	app.HideVersion = true
+	app.Before = func(ctx *cli.Context) error {
+		if ctx.Bool("no-emoji") {
+			print.DisableEmoji()
+		}
+
+		return nil
+	}
 
 	return app.Run(os.Args)
 }

@@ -141,7 +141,7 @@ func execBuild(ctx *cli.Context) error {
 		}
 
 		print.Step("Result")
-		fmt.Printf("📦   %s\n", info)
+		print.Result("📦", info.String())
 
 		if install {
 			pkgs = append(pkgs, info)
@@ -163,9 +163,7 @@ func execBuild(ctx *cli.Context) error {
 		p := message.NewPrinter(language.English)
 
 		print.Step("Result")
-		fmt.Print("📋   ")
-		p.Printf("build.install", len(pkgs))
-		p.Println()
+		print.Result("📋", p.Sprintf("build.install", len(pkgs)))
 	}
 
 	return nil
