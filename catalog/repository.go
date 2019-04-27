@@ -64,6 +64,7 @@ func (r *Repository) Update(force bool) error {
 			URL:           r.URL,
 			ReferenceName: plumbing.ReferenceName("refs/heads/" + r.Branch),
 			SingleBranch:  true,
+			Depth:         1,
 			Progress:      os.Stdout,
 		})
 		if err != nil {
@@ -87,6 +88,7 @@ func (r *Repository) Update(force bool) error {
 	// TODO: implement force (git checkout -f && git clean -d -f)
 
 	err = wt.Pull(&git.PullOptions{
+		Depth:    1,
 		Progress: os.Stdout,
 	})
 	if err == git.NoErrAlreadyUpToDate {
