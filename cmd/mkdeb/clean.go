@@ -14,7 +14,7 @@ import (
 
 var cleanCommand = cli.Command{
 	Name:      "clean",
-	Usage:     "clean packaging cache",
+	Usage:     "Clean packaging cache",
 	Action:    execClean,
 	ArgsUsage: " ",
 }

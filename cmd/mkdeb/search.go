@@ -18,13 +18,13 @@ import (
 
 var searchCommand = cli.Command{
 	Name:      "search",
-	Usage:     "search for recipes",
+	Usage:     "Search for recipes",
 	Action:    execSearch,
-	ArgsUsage: "term",
+	ArgsUsage: "[TERM]",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
-			Name:  "desc",
-			Usage: "include recipes description when searching",
+			Name:  "description, desc",
+			Usage: "Include recipes description when searching",
 		},
 	},
 }
@@ -83,7 +83,7 @@ func execSearch(ctx *cli.Context) error {
 
 	result, err := idx.Search(req)
 	if err != nil {
-		return errors.Wrap(err, "failed to search in index")
+		return errors.Wrap(err, "invalid format")
 	}
 
 	if result.Total > 0 {

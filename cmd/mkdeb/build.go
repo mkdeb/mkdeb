@@ -29,38 +29,38 @@ import (
 
 var buildCommand = cli.Command{
 	Name:      "build",
-	Usage:     "build Debian package",
+	Usage:     "Build Debian package",
 	Action:    execBuild,
-	ArgsUsage: "recipe...",
+	ArgsUsage: "RECIPE...",
 	Flags: []cli.Flag{
 		cli.UintFlag{
 			Name:  "epoch, e",
-			Usage: "package version epoch",
+			Usage: "Package version epoch",
 		},
 		cli.StringFlag{
 			Name:  "from, f",
-			Usage: "upstream archive path",
+			Usage: "Upstream archive path",
 		},
 		cli.BoolFlag{
 			Name:  "install, i",
-			Usage: "install package after build",
+			Usage: "Install package after build",
 		},
 		cli.StringFlag{
 			Name:  "recipe, R",
-			Usage: "recipe base path",
+			Usage: "Recipe base path",
 		},
 		cli.IntFlag{
 			Name:  "revision, r",
-			Usage: "package version revision",
+			Usage: "Package version revision",
 			Value: 1,
 		},
 		cli.BoolFlag{
 			Name:  "skip-cache",
-			Usage: "skip download cache",
+			Usage: "Skip download cache",
 		},
 		cli.StringFlag{
 			Name:  "to, t",
-			Usage: "package output path",
+			Usage: "Package output path",
 		},
 	},
 }
@@ -75,12 +75,12 @@ func execBuild(ctx *cli.Context) error {
 	install := ctx.Bool("install")
 	if install {
 		if _, err := exec.LookPath("apt-get"); err != nil {
-			return errors.New("flag \"--install\" can only be used on Debian-based systems")
+			return errors.New(`flag "--install" can only be used on Debian-based systems`)
 		}
 	}
 
 	if ctx.String("to") != "" && ctx.NArg() > 1 {
-		return errors.New("can't use \"--to\" flag when multiple packages are being built")
+		return errors.New(`flag "--to" cannot be used when multiple packages are being built`)
 	}
 
 	repo := repository.NewRepository(repositoryDir)
@@ -101,7 +101,7 @@ func execBuild(ctx *cli.Context) error {
 			arch = "all"
 		}
 		if version == "" {
-			return errEmptyVersion
+			return errors.New("missing recipe version")
 		}
 
 		print.Start("Package %s", ansi.Color(name, "green+b"))
@@ -114,14 +114,14 @@ func execBuild(ctx *cli.Context) error {
 			recipe, err = repository.Recipe(name)
 		}
 		if err != nil {
-			return errors.Wrap(err, "failed to load recipe")
+			return errors.Wrap(err, "cannot load recipe")
 		}
 
 		from := ctx.String("from")
 		if from == "" {
 			from, err = downloadArchive(arch, version, recipe, ctx.Bool("skip-cache"))
 			if err != nil {
-				return errors.Wrap(err, "failed to download upstream archive")
+				return errors.Wrap(err, "cannot download upstream archive")
 			}
 		}
 
@@ -137,7 +137,7 @@ func execBuild(ctx *cli.Context) error {
 
 		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), recipe, from, to)
 		if err != nil {
-			return errors.Wrap(err, "failed to create package")
+			return errors.Wrap(err, "cannot create package")
 		}
 
 		print.Step("Result")
@@ -194,7 +194,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 
 	v, ok := recipe.Source.ArchMapping[arch]
 	if !ok {
-		return "", errUnsupportedArch
+		return "", errors.New("unsupported architecture")
 	}
 	arch = v
 
@@ -365,7 +365,7 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 	}
 
 	if f == nil {
-		return nil, errUnsupportedSource
+		return nil, errors.New("unsupported source")
 	}
 
 	err = f(p, recipe, from, subtype)

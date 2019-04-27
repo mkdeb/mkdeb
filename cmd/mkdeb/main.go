@@ -42,22 +42,30 @@ func run() error {
 	}
 
 	// Run CLI application
+	cli.HelpFlag = helpFlag
+	cli.AppHelpTemplate = appHelpTemplate
+	cli.CommandHelpTemplate = commandHelpTemplate
+	cli.SubcommandHelpTemplate = subcommandHelpTemplate
+
 	app := cli.NewApp()
 	app.Name = "mkdeb"
 	app.Usage = "Debian packaging helper"
 	app.Commands = []cli.Command{
 		buildCommand,
 		cleanCommand,
+		helpCommand,
 		searchCommand,
 		updateCommand,
 		versionCommand,
 	}
 	app.Flags = []cli.Flag{
+		helpFlag,
 		cli.BoolFlag{
 			Name:  "no-emoji",
-			Usage: "disable emoji in commands output",
+			Usage: "Disable emoji in commands output",
 		},
 	}
+	app.HideHelp = true
 	app.HideVersion = true
 	app.Before = func(ctx *cli.Context) error {
 		if ctx.Bool("no-emoji") {

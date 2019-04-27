@@ -17,17 +17,17 @@ import (
 
 var updateCommand = cli.Command{
 	Name:      "update",
-	Usage:     "update recipes repository",
+	Usage:     "Update recipes repositories",
 	Action:    execUpdate,
 	ArgsUsage: " ",
 	Flags: []cli.Flag{
 		cli.BoolFlag{
-			Name:  "index-only",
-			Usage: "only perform recipes indexing",
+			Name:  "force",
+			Usage: "Force actions and repair any dangling state",
 		},
 		cli.BoolFlag{
-			Name:  "force",
-			Usage: "force actions and repair dangling state",
+			Name:  "index-only",
+			Usage: "Only perform recipes indexing",
 		},
 	},
 }
