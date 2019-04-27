@@ -5,11 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"mkdeb.sh/cmd/mkdeb/internal/print"
-
 	humanize "github.com/dustin/go-humanize"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
 var cleanCommand = cli.Command{
@@ -23,7 +22,6 @@ func execClean(ctx *cli.Context) error {
 	var size int64
 
 	print.Start("Clean")
-
 	print.Step("Removing files from cache...")
 
 	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
@@ -46,8 +44,7 @@ func execClean(ctx *cli.Context) error {
 		return nil
 	})
 
-	print.Step("Result")
-	print.Result("🗑", "Operation freed %s of disk space", humanize.Bytes(uint64(size)))
+	print.Summary("🗑", "Operation freed %s of disk space", humanize.Bytes(uint64(size)))
 
 	return err
 }

@@ -140,8 +140,7 @@ func execBuild(ctx *cli.Context) error {
 			return errors.Wrap(err, "cannot create package")
 		}
 
-		print.Step("Result")
-		print.Result("📦", info.String())
+		print.Summary("📦", info.String())
 
 		if install {
 			pkgs = append(pkgs, info)
@@ -160,10 +159,7 @@ func execBuild(ctx *cli.Context) error {
 			plural.Other, "Operation installed %d packages",
 		))
 
-		p := message.NewPrinter(language.English)
-
-		print.Step("Result")
-		print.Result("📋", p.Sprintf("build.install", len(pkgs)))
+		print.Summary("📋", message.NewPrinter(language.English).Sprintf("build.install", len(pkgs)))
 	}
 
 	return nil

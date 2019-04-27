@@ -18,19 +18,20 @@ func Error(s string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, s+"\n", args...)
 }
 
-func Result(emoji, s string, args ...interface{}) {
-	if enableEmoji {
-		fmt.Print(emoji + "  ")
-	}
-	fmt.Printf(s+"\n", args...)
-}
-
 func Start(s string, args ...interface{}) {
 	print("green", s, args...)
 }
 
 func Step(s string, args ...interface{}) {
 	print("blue", s, args...)
+}
+
+func Summary(emoji, s string, args ...interface{}) {
+	Step("Summary")
+	if enableEmoji {
+		fmt.Print(emoji + "  ")
+	}
+	fmt.Printf(s+"\n", args...)
 }
 
 func print(color, s string, args ...interface{}) {

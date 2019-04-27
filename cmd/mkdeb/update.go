@@ -100,9 +100,7 @@ func execUpdate(ctx *cli.Context) error {
 		plural.Other, "indexed %d recipes",
 	))
 
-	p := message.NewPrinter(language.English)
-	p.Printf("update.result", count)
-	p.Println()
+	print.Summary("📋", message.NewPrinter(language.English).Sprintf("update.result", count))
 
 	return nil
 }
