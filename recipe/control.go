@@ -1,6 +1,6 @@
 package recipe
 
-// Control is a recipe control instance.
+// Control is a recipe control.
 type Control struct {
 	Section  string `yaml:"section"`
 	Priority string `yaml:"priority"`

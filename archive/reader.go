@@ -10,7 +10,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-// Reader is an archive reader instance.
+// Reader is an archive reader.
 type Reader struct {
 	rc  io.ReadCloser
 	tar *tar.Reader
@@ -53,7 +53,7 @@ func NewReader(r io.Reader, compress int) (*Reader, error) {
 	}, nil
 }
 
-// Close closes the archive reader instance.
+// Close closes the archive reader.
 func (r *Reader) Close() error {
 	// Check whether or not the reader satisfies the io.Closer interface, then close it if yes
 	if r.rc != nil {

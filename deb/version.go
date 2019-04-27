@@ -2,7 +2,7 @@ package deb
 
 import "fmt"
 
-// Version is a Debian package version instance.
+// Version is a Debian package version.
 type Version struct {
 	Epoch    uint
 	Upstream string

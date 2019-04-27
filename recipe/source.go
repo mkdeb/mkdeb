@@ -1,6 +1,6 @@
 package recipe
 
-// Source is a recipe source instance.
+// Source is a recipe source.
 type Source struct {
 	URL         string            `yaml:"url"`
 	Type        string            `yaml:"type"`

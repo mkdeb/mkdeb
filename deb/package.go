@@ -15,7 +15,7 @@ import (
 	"mkdeb.sh/archive"
 )
 
-// Package is a Debian package instance.
+// Package is a Debian package.
 type Package struct {
 	Name    string
 	Arch    string

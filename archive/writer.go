@@ -9,7 +9,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-// Writer is an archive writer instance.
+// Writer is an archive writer.
 type Writer struct {
 	compress io.WriteCloser
 	tar      *tar.Writer
@@ -43,7 +43,7 @@ func NewWriter(w io.Writer, compress int) (*Writer, error) {
 	}, nil
 }
 
-// Close closes the archive writer instance.
+// Close closes the archive writer.
 func (w *Writer) Close() error {
 	if err := w.tar.Close(); err != nil {
 		return err
@@ -62,7 +62,7 @@ func (w *Writer) WriteHeader(h *Header) error {
 	return w.tar.WriteHeader(h.TarHeader())
 }
 
-// WriterBuffer is an archive writer buffer instance.
+// WriterBuffer is an archive writer buffer.
 type WriterBuffer struct {
 	*Writer
 
