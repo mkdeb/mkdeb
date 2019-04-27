@@ -36,8 +36,12 @@ func TestRecipeValid(t *testing.T) {
 		r.Control.Description)
 
 	// Check for "install" section
-	assert.Equal(t, InstallMap{"/etc/init.d": []InstallRule{{"init", "foo", true}}}, r.Install.Recipe)
-	assert.Equal(t, InstallMap{"/usr/bin": []InstallRule{{"foo", "", false}}}, r.Install.Upstream)
+	assert.Equal(t, InstallMap{
+		"/etc/init.d": []InstallRule{{Pattern: "init", Rename: "foo", ConfFile: true}},
+	}, r.Install.Recipe)
+	assert.Equal(t, InstallMap{
+		"/usr/bin": []InstallRule{{Pattern: "foo", Rename: "", ConfFile: false}},
+	}, r.Install.Upstream)
 
 	// Check for "dirs" section
 	assert.Equal(t, []string{"/path/to/dir"}, r.Dirs)
