@@ -3,17 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
+	"strings"
 	"text/tabwriter"
+	"text/template"
 
 	"facette.io/natsort"
-	"github.com/blevesearch/bleve"
 	_ "github.com/blevesearch/bleve/config"
-	"github.com/blevesearch/bleve/search/highlight/format/ansi"
-	"github.com/blevesearch/bleve/search/query"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
-	"mkdeb.sh/cmd/mkdeb/internal/columns"
-	"mkdeb.sh/repository"
+	"mkdeb.sh/catalog"
 )
 
 var searchCommand = cli.Command{
@@ -26,89 +25,70 @@ var searchCommand = cli.Command{
 			Name:  "description, desc",
 			Usage: "Include recipes description when searching",
 		},
+		cli.StringFlag{
+			Name:  "format",
+			Usage: "Output template format",
+		},
 	},
 }
 
 func execSearch(ctx *cli.Context) error {
-	var q *query.WildcardQuery
-
-	desc := ctx.Bool("desc")
-
 	if ctx.NArg() > 1 {
 		cli.ShowCommandHelpAndExit(ctx, "search", 1)
 	}
 
-	if r := repository.NewRepository(repositoryDir); !r.Exists() {
-		if err := ctx.App.Run([]string{ctx.App.Name, "update"}); err != nil {
-			return errors.Wrap(err, "failed to initialize repository")
+	if !catalog.Ready(catalogDir) {
+		err := ctx.App.Run([]string{ctx.App.Name, "repo", "add", catalog.DefaultRepository})
+		if err != nil {
+			return err
 		}
 	}
 
-	idx, err := bleve.Open(indexDir)
+	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "cannot initialize catalog")
+	}
+	defer c.Close()
+
+	term := ctx.Args().Get(0)
+
+	hits, err := c.Search(term, ctx.Bool("desc"))
+	if err != nil {
+		return errors.Wrap(err, "cannot search catalog")
 	}
 
-	if ctx.NArg() == 0 {
-		q = bleve.NewWildcardQuery("*")
-	} else {
-		q = bleve.NewWildcardQuery("*" + ctx.Args().First() + "*")
-	}
-	if !desc {
-		q.SetField("name")
-	}
-
-	req := bleve.NewSearchRequest(q)
-	req.Size = 100000 // FIXME: find a better way to handle request size
-	if desc {
-		color := ansi.Underscore
-		if ctx.NArg() == 0 {
-			color = ansi.Reset
+	if len(hits) == 0 {
+		if term != "" {
+			fmt.Printf("No match found for %q\n", term)
+		} else {
+			fmt.Println("No match found")
 		}
-
-		bleve.Config.Cache.DefineFragmentFormatter("custom", map[string]interface{}{
-			"type":  "ansi",
-			"color": color,
-		})
-
-		bleve.Config.Cache.DefineHighlighter("custom", map[string]interface{}{
-			"type":       "simple",
-			"fragmenter": "simple",
-			"formatter":  "custom",
-		})
-
-		req.Highlight = bleve.NewHighlightWithStyle("custom")
-		req.Highlight.AddField("description")
+		return nil
 	}
 
-	result, err := idx.Search(req)
+	sort.Slice(hits, func(i, j int) bool {
+		return natsort.Compare(hits[i].Repository+"/"+hits[i].Name, hits[j].Repository+"/"+hits[j].Name)
+	})
+
+	format := "{{ if ne .Repository \"" + catalog.DefaultRepository +
+		"\" }}{{ .Repository }}/{{ end }}{{ .Name }}\t{{ .Description }}\n"
+	if v := ctx.String("format"); v != "" {
+		format = strings.TrimSpace(v) + "\n"
+	}
+
+	tmpl, err := template.New("").Parse(format)
 	if err != nil {
 		return errors.Wrap(err, "invalid format")
 	}
 
-	if result.Total > 0 {
-		items := []string{}
-		for _, hit := range result.Hits {
-			if !desc {
-				items = append(items, hit.ID)
-			} else {
-				items = append(items, hit.ID+"\t"+hit.Fragments["description"][0])
-			}
+	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	for _, hit := range hits {
+		err = tmpl.Execute(tr, hit)
+		if err != nil {
+			return errors.Wrap(err, "cannot execute template")
 		}
-		natsort.Sort(items)
-
-		if !desc {
-			columns.Print(items, 2)
-		} else {
-			tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-			for _, item := range items {
-				tr.Write([]byte(item + "\n"))
-			}
-			tr.Flush()
-		}
-	} else {
-		fmt.Println("no match found")
 	}
+	tr.Flush()
 
 	return nil
 }

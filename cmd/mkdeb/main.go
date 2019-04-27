@@ -10,10 +10,9 @@ import (
 )
 
 var (
-	dataDir       string
-	cacheDir      string
-	indexDir      string
-	repositoryDir string
+	dataDir    string
+	cacheDir   string
+	catalogDir string
 )
 
 func main() {
@@ -33,13 +32,7 @@ func run() error {
 
 	dataDir = filepath.Join(dir, ".mkdeb")
 	cacheDir = filepath.Join(dataDir, "cache")
-	indexDir = filepath.Join(dataDir, "recipes/index")
-	repositoryDir = filepath.Join(dataDir, "recipes/default")
-
-	// Create cache directory if missing
-	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
-		os.MkdirAll(cacheDir, 0755)
-	}
+	catalogDir = filepath.Join(dataDir, "catalog")
 
 	// Run CLI application
 	cli.HelpFlag = helpFlag
@@ -54,6 +47,7 @@ func run() error {
 		buildCommand,
 		cleanupCommand,
 		helpCommand,
+		repoCommand,
 		searchCommand,
 		updateCommand,
 		versionCommand,

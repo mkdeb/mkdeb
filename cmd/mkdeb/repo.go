@@ -1,0 +1,175 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"text/tabwriter"
+	"text/template"
+
+	"github.com/mgutz/ansi"
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
+	"golang.org/x/text/feature/plural"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+	"mkdeb.sh/catalog"
+	"mkdeb.sh/cmd/mkdeb/internal/print"
+)
+
+var repoCommand = cli.Command{
+	Name:  "repo",
+	Usage: "Manage recipes repositories",
+	Subcommands: []cli.Command{
+		cli.Command{
+			Name:      "add",
+			Usage:     "Install new repository",
+			ArgsUsage: "user/repository [URL]",
+			Action:    execAdd,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "branch",
+					Usage: "Repository branch name",
+					Value: "master",
+				},
+				cli.BoolFlag{
+					Name:  "force",
+					Usage: "Force repository installation",
+				},
+			},
+		},
+		cli.Command{
+			Name:   "list",
+			Usage:  "List installed repositories",
+			Action: execList,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "format",
+					Usage: "Output template format",
+				},
+			},
+		},
+		cli.Command{
+			Name:   "remove",
+			Usage:  "Remove installed repository",
+			Action: execRemove,
+		},
+	},
+}
+
+func execAdd(ctx *cli.Context) error {
+	if ctx.NArg() < 1 || ctx.NArg() > 2 {
+		cli.ShowCommandHelpAndExit(ctx, "add", 1)
+	}
+
+	name := ctx.Args().Get(0)
+	if strings.Count(name, "/") != 1 {
+		return fmt.Errorf(`invalid %q repository name, must match "user/repository"`, name)
+	}
+
+	branch := ctx.String("branch")
+
+	url := ctx.Args().Get(1)
+	if url == "" {
+		parts := strings.SplitN(name, "/", 2)
+		url = fmt.Sprintf("https://github.com/%s/mkdeb-%s.git", parts[0], parts[1])
+	} else if strings.Contains(url, "@") {
+		parts := strings.SplitN(url, "@", 2)
+		url, branch = parts[0], parts[1]
+	}
+
+	c, err := catalog.New(catalogDir)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize catalog")
+	}
+	defer c.Close()
+
+	print.Start("Repository %s", ansi.Color(name, "green+b"))
+
+	print.Step("Installing %s repository...", url)
+
+	count, err := c.InstallRepository(name, url, branch, ctx.Bool("force"))
+	if err == catalog.ErrRepositoryExist {
+		return errors.New(`repository already installed, use "--force" to reinstall`)
+	} else if err != nil {
+		return errors.Wrap(err, "cannot install repository")
+	}
+
+	message.Set(language.English, "update.result", plural.Selectf(1, "%d",
+		plural.One, "%d recipe",
+		plural.Other, "%d recipes",
+	))
+
+	print.Summary("📋", "Repository installed: "+message.NewPrinter(language.English).Sprintf("update.result", count))
+
+	return nil
+}
+
+func execList(ctx *cli.Context) error {
+	c, err := catalog.New(catalogDir)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize catalog")
+	}
+	defer c.Close()
+
+	repos, err := c.Repositories()
+	if err != nil {
+		return errors.Wrap(err, "cannot get repositories")
+	}
+
+	format := "{{ .Name }}\t{{ .URL }}@{{ .Branch }}\n"
+	if v := ctx.String("format"); v != "" {
+		format = strings.TrimSpace(v) + "\n"
+	}
+
+	tmpl, err := template.New("").Parse(format)
+	if err != nil {
+		return errors.Wrap(err, "invalid format")
+	}
+
+	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	for _, repo := range repos {
+		err = tmpl.Execute(tr, repo)
+		if err != nil {
+			return errors.Wrap(err, "cannot execute template")
+		}
+	}
+	tr.Flush()
+
+	return nil
+}
+
+func execRemove(ctx *cli.Context) error {
+	if ctx.NArg() != 1 {
+		cli.ShowCommandHelpAndExit(ctx, "remove", 1)
+	}
+
+	name := ctx.Args().Get(0)
+	if strings.Count(name, "/") != 1 {
+		return fmt.Errorf(`invalid %q repository name, must match "user/repository"`, name)
+	}
+
+	c, err := catalog.New(catalogDir)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize catalog")
+	}
+	defer c.Close()
+
+	print.Start("Repository %s", ansi.Color(name, "green+b"))
+	print.Step("Uninstalling repository...")
+
+	count, err := c.UninstallRepository(name)
+	if err != nil {
+		return errors.Wrap(err, "cannot uninstall repository")
+	}
+
+	message.Set(language.English, "update.result", plural.Selectf(1, "%d",
+		plural.One, "%d recipe",
+		plural.Other, "%d recipes",
+	))
+
+	print.Summary("🗑", "Repository uninstalled: "+message.NewPrinter(language.English).
+		Sprintf("update.result", count))
+
+	return nil
+}

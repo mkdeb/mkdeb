@@ -3,13 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/mgutz/ansi"
@@ -19,12 +19,12 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	filetype "gopkg.in/h2non/filetype.v1"
+	"mkdeb.sh/catalog"
 	"mkdeb.sh/cmd/mkdeb/internal/handler"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 	"mkdeb.sh/cmd/mkdeb/internal/progress"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
-	"mkdeb.sh/repository"
 )
 
 var buildCommand = cli.Command{
@@ -83,17 +83,23 @@ func execBuild(ctx *cli.Context) error {
 		return errors.New(`flag "--to" cannot be used when multiple packages are being built`)
 	}
 
-	repo := repository.NewRepository(repositoryDir)
-	if !repo.Exists() {
-		if err := ctx.App.Run([]string{ctx.App.Name, "update"}); err != nil {
-			return errors.Wrap(err, "failed to initialize repository")
+	if !catalog.Ready(catalogDir) {
+		err := ctx.App.Run([]string{ctx.App.Name, "repo", "add", catalog.DefaultRepository})
+		if err != nil {
+			return err
 		}
 	}
 
+	c, err := catalog.New(catalogDir)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize catalog")
+	}
+	defer c.Close()
+
 	for _, arg := range ctx.Args() {
 		var (
-			recipe *recipe.Recipe
-			err    error
+			rcp *recipe.Recipe
+			err error
 		)
 
 		name, arch, version := parseRef(arg)
@@ -104,22 +110,22 @@ func execBuild(ctx *cli.Context) error {
 			return errors.New("missing recipe version")
 		}
 
-		print.Start("Package %s", ansi.Color(name, "green+b"))
-
-		repository := repository.NewRepository(repositoryDir)
-
 		if v := ctx.String("recipe"); v != "" {
-			recipe, err = repository.RecipeFromPath(v)
+			rcp, err = recipe.LoadRecipe(v)
 		} else {
-			recipe, err = repository.Recipe(name)
+			rcp, err = c.Recipe(name)
 		}
-		if err != nil {
+		if err == catalog.ErrRecipeNotFound {
+			return err
+		} else if err != nil {
 			return errors.Wrap(err, "cannot load recipe")
 		}
 
+		print.Start("Package %s", ansi.Color(name, "green+b"))
+
 		from := ctx.String("from")
 		if from == "" {
-			from, err = downloadArchive(arch, version, recipe, ctx.Bool("skip-cache"))
+			from, err = downloadArchive(arch, version, rcp, ctx.Bool("skip-cache"))
 			if err != nil {
 				return errors.Wrap(err, "cannot download upstream archive")
 			}
@@ -130,12 +136,12 @@ func execBuild(ctx *cli.Context) error {
 		// Get for output file path (will be overwritten if left empty)
 		epoch := ctx.Uint("epoch")
 		if epoch == 0 {
-			epoch = recipe.Control.Version.Epoch
+			epoch = rcp.Control.Version.Epoch
 		}
 
 		to := ctx.String("to")
 
-		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), recipe, from, to)
+		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), rcp, from, to)
 		if err != nil {
 			return errors.Wrap(err, "cannot create package")
 		}
@@ -185,10 +191,10 @@ func parseRef(input string) (string, string, string) {
 	return name, arch, version
 }
 
-func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (string, error) {
+func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (string, error) {
 	var path string
 
-	v, ok := recipe.Source.ArchMapping[arch]
+	v, ok := rcp.Source.ArchMapping[arch]
 	if !ok {
 		return "", errors.New("unsupported architecture")
 	}
@@ -197,7 +203,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	// Generate URL from recipe template
 	buf := bytes.NewBuffer(nil)
 
-	tmpl, err := template.New("url").Parse(recipe.Source.URL)
+	tmpl, err := template.New("").Parse(rcp.Source.URL)
 	if err != nil {
 		return "", errors.Wrap(err, "cannot parse URL template")
 	} else if err = tmpl.Execute(buf, struct{ Arch, Version string }{arch, version}); err != nil {
@@ -207,7 +213,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	url := buf.String()
 	idx := strings.LastIndex(url, "/")
 	if idx != -1 {
-		path = getCachePath(recipe.Name, url[idx+1:])
+		path = filepath.Join(cacheDir, string(rcp.Name[0]), rcp.Name, url[idx+1:])
 	}
 
 	if !force {
@@ -243,7 +249,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 
 	contentLength := uint64(req.ContentLength)
 	printLength := 0
-	progressFunc := func(s uint64) {
+	progressFn := func(s uint64) {
 		var str string
 
 		if req.ContentLength == -1 || s == contentLength {
@@ -259,7 +265,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 		printLength = len(str)
 	}
 
-	_, err = io.Copy(f, progress.NewReader(req.Body, progressFunc))
+	_, err = io.Copy(f, progress.NewReader(req.Body, progressFn))
 	if err != nil {
 		return "", err
 	}
@@ -269,7 +275,7 @@ func downloadArchive(arch, version string, recipe *recipe.Recipe, force bool) (s
 	return path, nil
 }
 
-func createPackage(arch, version string, epoch uint, revision int, recipe *recipe.Recipe, from,
+func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.Recipe, from,
 	to string) (*packageInfo, error) {
 
 	var (
@@ -277,51 +283,51 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 		subtype string
 	)
 
-	if _, ok := recipe.Source.ArchMapping[arch]; !ok {
-		return nil, errUnsupportedArch
+	if _, ok := rcp.Source.ArchMapping[arch]; !ok {
+		return nil, errors.New("unsupported architecture")
 	}
 
-	p, err := deb.NewPackage(recipe.Name, arch, version, epoch, revision)
+	p, err := deb.NewPackage(rcp.Name, arch, version, epoch, revision)
 	if err != nil {
 		return nil, err
 	}
 
-	desc := recipe.Description
-	if recipe.Control.Description != "" {
-		desc += "\n" + recipe.Control.Description
+	desc := rcp.Description
+	if rcp.Control.Description != "" {
+		desc += "\n" + rcp.Control.Description
 	}
 	p.Control.Set("Description", desc)
 
-	if len(recipe.Control.Depends) > 0 {
-		p.Control.Set("Depends", recipe.Control.Depends)
+	if len(rcp.Control.Depends) > 0 {
+		p.Control.Set("Depends", rcp.Control.Depends)
 	}
-	if len(recipe.Control.PreDepends) > 0 {
-		p.Control.Set("PreDepends", recipe.Control.PreDepends)
+	if len(rcp.Control.PreDepends) > 0 {
+		p.Control.Set("PreDepends", rcp.Control.PreDepends)
 	}
-	if len(recipe.Control.Recommends) > 0 {
-		p.Control.Set("Recommends", recipe.Control.Recommends)
+	if len(rcp.Control.Recommends) > 0 {
+		p.Control.Set("Recommends", rcp.Control.Recommends)
 	}
-	if len(recipe.Control.Suggests) > 0 {
-		p.Control.Set("Suggests", recipe.Control.Suggests)
+	if len(rcp.Control.Suggests) > 0 {
+		p.Control.Set("Suggests", rcp.Control.Suggests)
 	}
-	if len(recipe.Control.Enhances) > 0 {
-		p.Control.Set("Enhances", recipe.Control.Enhances)
+	if len(rcp.Control.Enhances) > 0 {
+		p.Control.Set("Enhances", rcp.Control.Enhances)
 	}
-	if len(recipe.Control.Breaks) > 0 {
-		p.Control.Set("Breaks", recipe.Control.Breaks)
+	if len(rcp.Control.Breaks) > 0 {
+		p.Control.Set("Breaks", rcp.Control.Breaks)
 	}
-	if len(recipe.Control.Conflicts) > 0 {
-		p.Control.Set("Conflicts", recipe.Control.Conflicts)
-	}
-
-	if len(recipe.Maintainer) > 0 {
-		p.Control.Set("Maintainer", recipe.Maintainer)
+	if len(rcp.Control.Conflicts) > 0 {
+		p.Control.Set("Conflicts", rcp.Control.Conflicts)
 	}
 
-	if len(recipe.ControlFiles) > 0 {
+	if len(rcp.Maintainer) > 0 {
+		p.Control.Set("Maintainer", rcp.Maintainer)
+	}
+
+	if len(rcp.ControlFiles) > 0 {
 		print.Step("Adding control files...")
 
-		for _, f := range recipe.ControlFiles {
+		for _, f := range rcp.ControlFiles {
 			name := f.FileInfo.Name()
 
 			fmt.Printf("append %q (%s)\n", name, humanize.Bytes(uint64(f.FileInfo.Size())))
@@ -339,7 +345,7 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 
 	print.Step("Adding files upstream archive...")
 
-	switch recipe.Source.Type {
+	switch rcp.Source.Type {
 	case "archive":
 		typ, err := filetype.MatchFile(from)
 		if err != nil {
@@ -364,18 +370,18 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 		return nil, errors.New("unsupported source")
 	}
 
-	err = f(p, recipe, from, subtype)
+	err = f(p, rcp, from, subtype)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(recipe.RecipeFiles) > 0 {
+	if len(rcp.RecipeFiles) > 0 {
 		print.Step("Adding recipe files...")
 
-		for _, f := range recipe.RecipeFiles {
+		for _, f := range rcp.RecipeFiles {
 			name := f.FileInfo.Name()
 
-			if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Recipe); ok {
+			if path, confFile, ok := rcp.InstallPath(name, rcp.Install.Recipe); ok {
 				fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(f.FileInfo.Size())))
 
 				if confFile {
@@ -394,10 +400,10 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 		}
 	}
 
-	if len(recipe.Dirs) > 0 {
+	if len(rcp.Dirs) > 0 {
 		print.Step("Adding recipe directories...")
 
-		for _, path := range recipe.Dirs {
+		for _, path := range rcp.Dirs {
 			fmt.Printf("append %q\n", path)
 
 			if err = p.AddDir(path, 0755); err != nil {
@@ -406,10 +412,10 @@ func createPackage(arch, version string, epoch uint, revision int, recipe *recip
 		}
 	}
 
-	if len(recipe.Links) > 0 {
+	if len(rcp.Links) > 0 {
 		print.Step("Adding recipe symbolic links...")
 
-		for dst, src := range recipe.Links {
+		for dst, src := range rcp.Links {
 			fmt.Printf("link %q to %q\n", src, dst)
 
 			if err = p.AddLink(dst, src); err != nil {
@@ -474,10 +480,6 @@ func installPackages(pkgs []*packageInfo) error {
 	cmd.Stdout = os.Stdout
 
 	return cmd.Run()
-}
-
-func getCachePath(pkgName, name string) string {
-	return filepath.Join(cacheDir, string(pkgName[0]), pkgName, name)
 }
 
 type packageInfo struct {
