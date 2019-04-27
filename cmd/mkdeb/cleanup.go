@@ -11,17 +11,17 @@ import (
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
-var cleanCommand = cli.Command{
-	Name:      "clean",
-	Usage:     "Clean packaging cache",
-	Action:    execClean,
+var cleanupCommand = cli.Command{
+	Name:      "cleanup",
+	Usage:     "Cleanup local cache",
+	Action:    execCleanup,
 	ArgsUsage: " ",
 }
 
-func execClean(ctx *cli.Context) error {
+func execCleanup(ctx *cli.Context) error {
 	var size int64
 
-	print.Start("Clean")
+	print.Start("Cleanup")
 	print.Step("Removing files from cache...")
 
 	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {

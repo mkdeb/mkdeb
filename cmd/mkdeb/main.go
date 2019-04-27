@@ -52,7 +52,7 @@ func run() error {
 	app.Usage = "Debian packaging helper"
 	app.Commands = []cli.Command{
 		buildCommand,
-		cleanCommand,
+		cleanupCommand,
 		helpCommand,
 		searchCommand,
 		updateCommand,
