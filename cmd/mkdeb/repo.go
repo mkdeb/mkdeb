@@ -21,7 +21,7 @@ var repoCommand = cli.Command{
 	Name:  "repo",
 	Usage: "Manage recipes repositories",
 	Subcommands: []cli.Command{
-		cli.Command{
+		{
 			Name:      "add",
 			Usage:     "Install new repository",
 			ArgsUsage: "user/repository [URL]",
@@ -38,7 +38,7 @@ var repoCommand = cli.Command{
 				},
 			},
 		},
-		cli.Command{
+		{
 			Name:   "list",
 			Usage:  "List installed repositories",
 			Action: execList,
@@ -49,7 +49,7 @@ var repoCommand = cli.Command{
 				},
 			},
 		},
-		cli.Command{
+		{
 			Name:   "remove",
 			Usage:  "Remove installed repository",
 			Action: execRemove,
