@@ -36,5 +36,5 @@ func Summary(emoji, s string, args ...interface{}) {
 
 func print(color, s string, args ...interface{}) {
 	fmt.Print(ansi.Color("==> ", color))
-	fmt.Printf(s+"\n", args...)
+	fmt.Printf(ansi.Color(s, "default+b")+"\n", args...)
 }
