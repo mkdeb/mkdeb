@@ -265,7 +265,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 		printLength = len(str)
 	}
 
-	_, err = io.Copy(f, progress.NewReader(req.Body, progressFn))
+	_, err = io.Copy(f, progress.New(req.Body, progressFn))
 	if err != nil {
 		return "", err
 	}

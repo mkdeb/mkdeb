@@ -10,7 +10,7 @@ type Reader struct {
 	length   uint64
 }
 
-func NewReader(r io.Reader, callback func(uint64)) *Reader {
+func New(r io.Reader, callback func(uint64)) *Reader {
 	return &Reader{
 		Reader:   r,
 		callback: callback,
