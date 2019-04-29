@@ -343,7 +343,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 		}
 	}
 
-	print.Step("Adding files upstream archive...")
+	print.Step("Adding upstream files...")
 
 	switch rcp.Source.Type {
 	case "archive":
