@@ -84,7 +84,7 @@ func execAdd(ctx *cli.Context) error {
 	}
 	defer c.Close()
 
-	print.Start("Repository %s", ansi.Color(name, "green+b"))
+	print.Section("Repository %s", ansi.Color(name, "green+b"))
 
 	print.Step("Installing %s repository...", url)
 
@@ -155,7 +155,7 @@ func execRemove(ctx *cli.Context) error {
 	}
 	defer c.Close()
 
-	print.Start("Repository %s", ansi.Color(name, "green+b"))
+	print.Section("Repository %s", ansi.Color(name, "green+b"))
 	print.Step("Uninstalling repository...")
 
 	count, err := c.UninstallRepository(name)

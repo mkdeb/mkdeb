@@ -21,7 +21,7 @@ var cleanupCommand = cli.Command{
 func execCleanup(ctx *cli.Context) error {
 	var size int64
 
-	print.Start("Cleanup")
+	print.Section("Cleanup")
 	print.Step("Removing files from cache...")
 
 	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {

@@ -121,7 +121,7 @@ func execBuild(ctx *cli.Context) error {
 			return errors.Wrap(err, "cannot load recipe")
 		}
 
-		print.Start("Package %s", ansi.Color(name, "green+b"))
+		print.Section("Package %s", ansi.Color(name, "green+b"))
 
 		from := ctx.String("from")
 		if from == "" {
@@ -154,7 +154,7 @@ func execBuild(ctx *cli.Context) error {
 	}
 
 	if install && len(pkgs) > 0 {
-		print.Start("Install packages")
+		print.Section("Install packages")
 
 		if err := installPackages(pkgs); err != nil {
 			return err

@@ -18,7 +18,7 @@ func Error(s string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, s+"\n", args...)
 }
 
-func Start(s string, args ...interface{}) {
+func Section(s string, args ...interface{}) {
 	print("green", s, args...)
 }
 
