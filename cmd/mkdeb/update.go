@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/mgutz/ansi"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/text/feature/plural"
@@ -53,8 +52,7 @@ func execUpdate(ctx *cli.Context) error {
 
 	if !ctx.Bool("index-only") {
 		for _, repo := range repos {
-			print.Start("Repository %s", ansi.Color(repo.Name, "green+b"))
-			print.Step("Updating repository...")
+			print.Step("Updating %s repository...", repo.Name)
 
 			err = repo.Update(ctx.Bool("force"))
 			if err == catalog.ErrAlreadyUpToDate {
@@ -64,9 +62,6 @@ func execUpdate(ctx *cli.Context) error {
 			}
 		}
 	}
-
-	print.Start("Catalog")
-	print.Step("Indexing repositories...")
 
 	count, err := c.Index()
 	if err != nil {
