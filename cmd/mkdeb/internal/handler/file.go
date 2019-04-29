@@ -11,6 +11,7 @@ import (
 	"mkdeb.sh/recipe"
 )
 
+// File is an upstream source file handler.
 func File(p *deb.Package, recipe *recipe.Recipe, filePath, typ string) error {
 	name := filepath.Base(filePath)
 

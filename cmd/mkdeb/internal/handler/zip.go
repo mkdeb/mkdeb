@@ -11,6 +11,7 @@ import (
 	"mkdeb.sh/recipe"
 )
 
+// Zip is an upstream source zip handler.
 func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 	// Create a new reader for the source archive
 	r, err := zip.OpenReader(path)

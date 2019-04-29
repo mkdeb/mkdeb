@@ -12,6 +12,7 @@ import (
 	"mkdeb.sh/recipe"
 )
 
+// Tar is an upstream source tar handler.
 func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 	var compress int
 

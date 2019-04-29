@@ -7,6 +7,7 @@ import (
 	"mkdeb.sh/recipe"
 )
 
+// Func is an upstream source handler function.
 type Func func(*deb.Package, *recipe.Recipe, string, string) error
 
 func stripName(name string, n int) string {
