@@ -262,15 +262,15 @@ func (c *Catalog) UninstallRepository(name string) (uint64, error) {
 }
 
 // Walk walks the catalog calling a function for each recipe found.
-func (c *Catalog) Walk(f func(recipe *recipe.Recipe, repo *Repository, err error) error) error {
+func (c *Catalog) Walk(f func(rcp *recipe.Recipe, repo *Repository, err error) error) error {
 	repos, err := c.Repositories()
 	if err != nil {
 		return err
 	}
 
 	for _, repo := range repos {
-		err = repo.Walk(func(recipe *recipe.Recipe, err error) error {
-			return f(recipe, repo, err)
+		err = repo.Walk(func(rcp *recipe.Recipe, err error) error {
+			return f(rcp, repo, err)
 		})
 		if err != nil {
 			return err
