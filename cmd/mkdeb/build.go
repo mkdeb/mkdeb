@@ -227,7 +227,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	}
 
 	dirPath := filepath.Dir(path)
-	_, err := os.Stat(dirPath)
+	_, err = os.Stat(dirPath)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(dirPath, 0755); err != nil {
 			return "", errors.Wrap(err, "cannot create cache directory")

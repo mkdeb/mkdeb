@@ -75,7 +75,7 @@ func execSearch(ctx *cli.Context) error {
 		format = "{{ if ne .Repository \"" + catalog.DefaultRepository +
 			"\" }}{{ .Repository }}/{{ end }}{{ .Name }}\t{{ .Description }}\n"
 	} else {
-		format = strings.TrimSpace(v) + "\n"
+		format = strings.TrimSpace(format) + "\n"
 	}
 
 	tmpl, err := template.New("").Parse(format)

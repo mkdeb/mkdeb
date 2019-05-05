@@ -114,14 +114,14 @@ func execList(ctx *cli.Context) error {
 
 	repos, err := c.Repositories()
 	if err != nil {
-		return errors.Wrap(err, "cannot get repositories")
+		return err
 	}
 
 	format := ctx.String("format")
 	if format == "" {
 		format = "{{ .Name }}\t{{ .URL }}@{{ .Branch }}\n"
 	} else {
-		format = strings.TrimSpace(v) + "\n"
+		format = strings.TrimSpace(format) + "\n"
 	}
 
 	tmpl, err := template.New("").Parse(format)

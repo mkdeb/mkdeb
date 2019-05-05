@@ -42,7 +42,7 @@ func execUpdate(ctx *cli.Context) error {
 
 	repos, err := c.Repositories()
 	if err != nil {
-		return errors.Wrap(err, "cannot get repositories")
+		return err
 	}
 
 	if len(repos) == 0 {
