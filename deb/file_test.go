@@ -27,5 +27,6 @@ func TestFileDir(t *testing.T) {
 	assert.Equal(t, int64(0), fi.Size())
 	assert.Equal(t, os.FileMode(0755), fi.Mode())
 	assert.Equal(t, now, fi.ModTime())
-	assert.Equal(t, true, fi.IsDir())
+	assert.True(t, fi.IsDir())
+	assert.NotNil(t, fi.Sys())
 }

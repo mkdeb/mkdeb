@@ -45,7 +45,8 @@ func NewWriter(w io.Writer, compress int) (*Writer, error) {
 
 // Close closes the archive writer.
 func (w *Writer) Close() error {
-	if err := w.tar.Close(); err != nil {
+	err := w.tar.Close()
+	if err != nil {
 		return err
 	}
 

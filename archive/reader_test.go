@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestReaderNone(t *testing.T) {
+	f, err := os.Open("testdata/data.tar")
+	assert.Nil(t, err)
+
+	testReader(t, f, CompressNone)
+}
+
 func TestReaderBzip2(t *testing.T) {
 	f, err := os.Open("testdata/data.tar.bz2")
 	assert.Nil(t, err)
@@ -27,6 +34,12 @@ func TestReaderXZ(t *testing.T) {
 	assert.Nil(t, err)
 
 	testReader(t, f, CompressXZ)
+}
+
+func TestReaderUnsupported(t *testing.T) {
+	r, err := NewReader(nil, -1)
+	assert.Nil(t, r)
+	assert.Equal(t, ErrUnsupportedCompress, err)
 }
 
 func testReader(t *testing.T, f *os.File, compress int) {
