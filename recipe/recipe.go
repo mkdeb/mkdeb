@@ -103,7 +103,7 @@ func (r *Recipe) InstallPath(path string, m InstallMap) (string, bool, bool) {
 
 func (r *Recipe) validate() error {
 	switch {
-	case r.Version != 1:
+	case !VersionSupported(r.Version):
 		return ErrUnsupportedVersion
 
 	case r.Name == "":
