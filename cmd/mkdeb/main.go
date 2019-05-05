@@ -47,6 +47,7 @@ func run() error {
 		buildCommand,
 		cleanupCommand,
 		helpCommand,
+		lintCommand,
 		repoCommand,
 		searchCommand,
 		updateCommand,

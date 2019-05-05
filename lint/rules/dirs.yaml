@@ -1,0 +1,9 @@
+---
+rules:
+
+- tag: dirs-path-relative
+  level: error
+  description: |
+    Recipe directories must be absolute paths.
+
+# vim: ts=2 sw=2 et

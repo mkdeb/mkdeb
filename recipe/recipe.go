@@ -18,8 +18,8 @@ type Recipe struct {
 	Version     int               `yaml:"version"`
 	Name        string            `yaml:"name"`
 	Description string            `yaml:"description"`
-	Homepage    string            `yaml:"homepage"`
 	Maintainer  string            `yaml:"maintainer"`
+	Homepage    string            `yaml:"homepage"`
 	Source      *Source           `yaml:"source"`
 	Control     *Control          `yaml:"control"`
 	Install     *Install          `yaml:"install"`

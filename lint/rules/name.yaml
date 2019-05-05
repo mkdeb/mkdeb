@@ -1,0 +1,21 @@
+---
+rules:
+
+- tag: name-empty
+  level: error
+  description: |
+    Recipe name must not be empty.
+
+- tag: name-invalid
+  level: error
+  description: |
+    Recipe name must be lowercase and consist of letters, digits and hyphens.
+
+    Hyphens are only permitted within the name, therefore it must not start or end with an hyphen.
+
+- tag: name-too-long
+  level: warning
+  description: |
+    Recipe name should be kept short for readability's sake.
+
+# vim: ts=2 sw=2 et

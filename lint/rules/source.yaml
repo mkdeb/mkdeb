@@ -1,0 +1,39 @@
+---
+rules:
+
+- tag: source-empty
+  level: error
+  description: |
+    Recipe source must not be empty.
+
+- tag: source-strip-invalid
+  level: error
+  description: |
+    Recipe source strip value must be greater than or equal to 0.
+
+    If N is greater than zero, it will strip N leading components from files names present in upstream archives.
+
+    Default: archive
+
+- tag: source-type-invalid
+  level: error
+  description: |
+    Recipe source type must be a valid source type.
+
+    Currently supported source types are "archive" and "file".
+
+    Default: archive
+
+- tag: source-url-empty
+  level: error
+  description: |
+    Recipe source URL must not be empty.
+
+- tag: source-url-invalid
+  level: error
+  description: |
+    Recipe source URL must be a valid URL, including a scheme. It may use template variables.
+
+    Example: https://example.net/foo-{{ .Version }}_{{ .Arch }}.tar.gz
+
+# vim: ts=2 sw=2 et

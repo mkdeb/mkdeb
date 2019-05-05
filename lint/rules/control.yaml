@@ -1,0 +1,14 @@
+---
+rules:
+
+- tag: control-empty
+  level: error
+  description: |
+    Recipe control must not be empty.
+
+- tag: control-description-empty
+  level: error
+  description: |
+    Recipe control description must not be empty.
+
+# vim: ts=2 sw=2 et

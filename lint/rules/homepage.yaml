@@ -1,0 +1,16 @@
+---
+rules:
+
+- tag: homepage-empty
+  level: warning
+  description: |
+    Recipe homepage should not be empty.
+
+- tag: homepage-invalid
+  level: error
+  description: |
+    Recipe homepage must be a valid URL, including a scheme.
+
+    Example: https://example.net/
+
+# vim: ts=2 sw=2 et

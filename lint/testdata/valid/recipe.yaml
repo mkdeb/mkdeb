@@ -1,0 +1,48 @@
+---
+version: 1
+
+name: foo
+description: A great description
+maintainer: Foo Bar <foo@example.org>
+homepage: https://example.org/
+
+source:
+  url: https://example.org/path/to/foo-{{ .Version }}.{{ .Arch }}.tar.gz
+  strip: 1
+  arch-mapping:
+    amd64: amd64
+
+control:
+  section: admin
+  priority: optional
+  depends:
+  - bar
+  pre-depends:
+  - baz
+  recommends:
+  - barbar
+  suggests:
+  - barbaz
+  enhances:
+  - foobar
+  breaks:
+  - foobaz
+  conflicts:
+  - foobarbaz
+  description: A long package description providing us with information on the upstream software.
+
+install:
+  recipe:
+    /etc/init.d:
+    - pattern: init
+      rename: foo
+      conffile: true
+  upstream:
+    /usr/bin:
+    - pattern: foo
+
+dirs:
+- /path/to/dir
+
+links:
+  /path/to/link: /path/to/target

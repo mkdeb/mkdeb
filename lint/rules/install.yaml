@@ -1,0 +1,39 @@
+---
+rules:
+
+- tag: install-empty
+  level: error
+  description: |
+    Recipe install must not be empty.
+
+- tag: install-destination-relative
+  level: error
+  description: |
+    Recipe install destination must be an absolute path.
+
+- tag: install-rule-conffile-outside-etc
+  level: warning
+  description: |
+    Recipe install rule conffile should point to a file located in /etc.
+
+- tag: install-rule-empty
+  level: error
+  description: |
+    Recipe install rule must not be empty.
+
+- tag: install-rule-pattern-empty
+  level: error
+  description: |
+    Recipe install rule pattern must not be empty.
+
+- tag: install-rule-rename-duplicate
+  level: error
+  description: |
+    Recipe install rule rename property must be unique.
+
+- tag: install-upstream-empty
+  level: error
+  description: |
+    Recipe upstream install map must not be empty.
+
+# vim: ts=2 sw=2 et

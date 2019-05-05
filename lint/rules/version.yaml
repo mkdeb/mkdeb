@@ -1,0 +1,11 @@
+---
+rules:
+
+- tag: version-unsupported
+  level: error
+  description: |
+    Recipe version must be a valid supported version.
+
+    Currently supported version is 1.
+
+# vim: ts=2 sw=2 et

@@ -1,0 +1,14 @@
+---
+rules:
+
+- tag: maintainer-empty
+  level: error
+  description: |
+    Recipe maintainer must not be empty.
+
+- tag: maintainer-invalid
+  level: error
+  description: |
+    Recipe maintainer must be a single RFC 5322 address, e.g. "Foo Bar <foo@example.org>".
+
+# vim: ts=2 sw=2 et

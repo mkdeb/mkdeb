@@ -1,0 +1,14 @@
+---
+rules:
+
+- tag: links-destination-relative
+  level: error
+  description: |
+    Recipe links destinations must be absolute paths.
+
+- tag: links-source-relative
+  level: error
+  description: |
+    Recipe links sources must be absolute paths.
+
+# vim: ts=2 sw=2 et

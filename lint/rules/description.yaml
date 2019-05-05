@@ -1,0 +1,24 @@
+---
+rules:
+
+- tag: description-empty
+  level: error
+  description: |
+    Recipe description must not be empty.
+
+- tag: description-extra-dot
+  level: warning
+  description: |
+    Recipe description should not end with a dot.
+
+- tag: description-missing-uppercase
+  level: warning
+  description: |
+    Recipe description should start with an uppercase character.
+
+- tag: description-too-long
+  level: warning
+  description: |
+    Recipe description should be kept short for readability's sake.
+
+# vim: ts=2 sw=2 et
