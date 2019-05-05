@@ -78,7 +78,8 @@ func (p *Package) AddControlFile(name string, r io.Reader, fi os.FileInfo) error
 
 // AddDir appends a new directory to the internal data archive.
 func (p *Package) AddDir(path string, mode os.FileMode) error {
-	if err := p.ensureParent(path); err != nil {
+	err := p.ensureParent(path)
+	if err != nil {
 		return err
 	}
 
@@ -97,7 +98,8 @@ func (p *Package) AddDir(path string, mode os.FileMode) error {
 func (p *Package) AddFile(path string, r io.Reader, fi os.FileInfo) error {
 	digest := md5.New()
 
-	if err := p.ensureParent(path); err != nil {
+	err := p.ensureParent(path)
+	if err != nil {
 		return err
 	}
 
@@ -105,7 +107,7 @@ func (p *Package) AddFile(path string, r io.Reader, fi os.FileInfo) error {
 	size := fi.Size()
 	p.Control.installedSize += size
 
-	err := p.data.WriteHeader(&archive.Header{
+	err = p.data.WriteHeader(&archive.Header{
 		Name:    "." + path,
 		Size:    size,
 		Mode:    fi.Mode(),
@@ -129,7 +131,8 @@ func (p *Package) AddFile(path string, r io.Reader, fi os.FileInfo) error {
 
 // AddLink appends a new symbolic link to the internal data archive.
 func (p *Package) AddLink(dst, src string) error {
-	if err := p.ensureParent(dst); err != nil {
+	err := p.ensureParent(dst)
+	if err != nil {
 		return err
 	}
 
@@ -155,47 +158,49 @@ func (p *Package) Write(w io.Writer) error {
 	now := time.Now()
 
 	// Add generated control files
-	if err := p.Control.Set("Name", p.Name); err != nil {
+	err := p.Control.Set("Name", p.Name)
+	if err != nil {
 		return errors.Wrap(err, "cannot set name")
-	} else if err = p.Control.Set("Version", p.Version.String()); err != nil {
+	}
+
+	err = p.Control.Set("Version", p.Version.String())
+	if err != nil {
 		return errors.Wrap(err, "cannot set version")
-	} else if err = p.Control.Set("Architecture", p.Arch); err != nil {
+	}
+
+	err = p.Control.Set("Architecture", p.Arch)
+	if err != nil {
 		return errors.Wrap(err, "cannot set architecture")
 	}
 
 	if len(p.confFiles) > 0 {
 		src = bytes.NewBuffer([]byte(strings.Join(p.confFiles, "\n") + "\n"))
-		if err := p.AddControlFile(
-			"conffiles",
-			src,
-			newFileInfo("conffiles", int64(src.Len()), 0644, now, false),
-		); err != nil {
+		err = p.AddControlFile("conffiles", src, newFileInfo("conffiles", int64(src.Len()), 0644, now, false))
+		if err != nil {
 			return errors.Wrap(err, "cannot add \"conffiles\" file")
 		}
 	}
 
 	src = bytes.NewBuffer([]byte(p.Control.String()))
-	if err := p.AddControlFile(
-		"control",
-		src,
-		newFileInfo("control", int64(src.Len()), 0644, now, false),
-	); err != nil {
+	err = p.AddControlFile("control", src, newFileInfo("control", int64(src.Len()), 0644, now, false))
+	if err != nil {
 		return errors.Wrap(err, "cannot add \"control\" file")
 	}
 
 	src = bytes.NewBuffer(p.md5sums.Bytes())
-	if err := p.AddControlFile(
-		"md5sums",
-		src,
-		newFileInfo("md5sums", int64(src.Len()), 0644, now, false),
-	); err != nil {
+	err = p.AddControlFile("md5sums", src, newFileInfo("md5sums", int64(src.Len()), 0644, now, false))
+	if err != nil {
 		return errors.Wrap(err, "cannot add \"md5sums\" file")
 	}
 
 	// Close internal archives prior to write their content to prevent incomplete data
-	if err := p.control.Close(); err != nil {
+	err = p.control.Close()
+	if err != nil {
 		return errors.Wrap(err, "cannot close control archive")
-	} else if err := p.data.Close(); err != nil {
+	}
+
+	err = p.data.Close()
+	if err != nil {
 		return errors.Wrap(err, "cannot close data archive")
 	}
 
@@ -203,11 +208,18 @@ func (p *Package) Write(w io.Writer) error {
 	p.writer = ar.NewWriter(w)
 	p.writer.WriteGlobalHeader()
 
-	if err := p.append("debian-binary", []byte("2.0\n"), now); err != nil {
+	err = p.append("debian-binary", []byte("2.0\n"), now)
+	if err != nil {
 		return errors.Wrap(err, "cannot append debian-binary")
-	} else if err := p.append("control.tar.gz", p.control.Bytes(), now); err != nil {
+	}
+
+	err = p.append("control.tar.gz", p.control.Bytes(), now)
+	if err != nil {
 		return errors.Wrap(err, "cannot append control.tar.gz")
-	} else if err := p.append("data.tar.xz", p.data.Bytes(), now); err != nil {
+	}
+
+	err = p.append("data.tar.xz", p.data.Bytes(), now)
+	if err != nil {
 		return errors.Wrap(err, "cannot append data.tar.xz")
 	}
 
@@ -221,7 +233,8 @@ func (p *Package) ensureParent(path string) error {
 		return nil
 	}
 
-	if _, ok := p.dirs[dirPath]; !ok {
+	_, ok := p.dirs[dirPath]
+	if !ok {
 		return p.AddDir(dirPath, 0755)
 	}
 

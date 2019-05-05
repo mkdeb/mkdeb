@@ -74,7 +74,8 @@ func execBuild(ctx *cli.Context) error {
 
 	install := ctx.Bool("install")
 	if install {
-		if _, err := exec.LookPath("apt-get"); err != nil {
+		_, err := exec.LookPath("apt-get")
+		if err != nil {
 			return errors.New(`flag "--install" can only be used on Debian-based systems`)
 		}
 	}
@@ -110,8 +111,9 @@ func execBuild(ctx *cli.Context) error {
 			return errors.New("missing recipe version")
 		}
 
-		if v := ctx.String("recipe"); v != "" {
-			rcp, err = recipe.LoadRecipe(v)
+		rcpPath := ctx.String("recipe")
+		if rcpPath != "" {
+			rcp, err = recipe.LoadRecipe(rcpPath)
 		} else {
 			rcp, err = c.Recipe(name)
 		}
@@ -156,7 +158,8 @@ func execBuild(ctx *cli.Context) error {
 	if install && len(pkgs) > 0 {
 		print.Section("Install packages")
 
-		if err := installPackages(pkgs); err != nil {
+		err := installPackages(pkgs)
+		if err != nil {
 			return err
 		}
 
@@ -217,13 +220,15 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	}
 
 	if !force {
-		if _, err := os.Stat(path); err == nil {
+		_, err := os.Stat(path)
+		if err == nil {
 			return path, nil
 		}
 	}
 
 	dirPath := filepath.Dir(path)
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+	_, err := os.Stat(dirPath)
+	if os.IsNotExist(err) {
 		if err = os.MkdirAll(dirPath, 0755); err != nil {
 			return "", errors.Wrap(err, "cannot create cache directory")
 		}
@@ -259,7 +264,8 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 		}
 
 		fmt.Print(str)
-		if diff := printLength - len(str); diff > 0 {
+		diff := printLength - len(str)
+		if diff > 0 {
 			fmt.Print(strings.Repeat(" ", diff))
 		}
 		printLength = len(str)
@@ -283,7 +289,8 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 		subtype string
 	)
 
-	if _, ok := rcp.Source.ArchMapping[arch]; !ok {
+	_, ok := rcp.Source.ArchMapping[arch]
+	if !ok {
 		return nil, errors.New("unsupported architecture")
 	}
 
@@ -381,7 +388,8 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 		for _, f := range rcp.RecipeFiles {
 			name := f.FileInfo.Name()
 
-			if path, confFile, ok := rcp.InstallPath(name, rcp.Install.Recipe); ok {
+			path, confFile, ok := rcp.InstallPath(name, rcp.Install.Recipe)
+			if ok {
 				fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(f.FileInfo.Size())))
 
 				if confFile {
@@ -448,7 +456,8 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 		return nil, err
 	}
 
-	if err := p.Write(file); err != nil {
+	err = p.Write(file)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot write package")
 	}
 

@@ -56,7 +56,8 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 			name = stripName(name, recipe.Source.Strip)
 		}
 
-		if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream); ok {
+		path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream)
+		if ok {
 			fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(h.Size)))
 
 			if confFile {
@@ -64,15 +65,18 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 			}
 
 			if h.Mode&os.ModeDir == os.ModeDir {
-				if err := p.AddDir(path, h.Mode); err != nil {
+				err = p.AddDir(path, h.Mode)
+				if err != nil {
 					return errors.Wrapf(err, "cannot add %q dir", name)
 				}
 			} else if h.Mode&os.ModeSymlink == os.ModeSymlink {
-				if err := p.AddLink(path, h.LinkName); err != nil {
+				err = p.AddLink(path, h.LinkName)
+				if err != nil {
 					return errors.Wrapf(err, "cannot add %q link", name)
 				}
 			} else {
-				if err := p.AddFile(path, src, h.FileInfo()); err != nil {
+				err = p.AddFile(path, src, h.FileInfo())
+				if err != nil {
 					return errors.Wrapf(err, "cannot add %q file", name)
 				}
 			}

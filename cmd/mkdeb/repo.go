@@ -117,8 +117,10 @@ func execList(ctx *cli.Context) error {
 		return errors.Wrap(err, "cannot get repositories")
 	}
 
-	format := "{{ .Name }}\t{{ .URL }}@{{ .Branch }}\n"
-	if v := ctx.String("format"); v != "" {
+	format := ctx.String("format")
+	if format == "" {
+		format = "{{ .Name }}\t{{ .URL }}@{{ .Branch }}\n"
+	} else {
 		format = strings.TrimSpace(v) + "\n"
 	}
 

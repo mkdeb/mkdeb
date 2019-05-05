@@ -15,7 +15,8 @@ import (
 func File(p *deb.Package, recipe *recipe.Recipe, filePath, typ string) error {
 	name := filepath.Base(filePath)
 
-	if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream); ok {
+	path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream)
+	if ok {
 		fi, err := os.Stat(filePath)
 		if err != nil {
 			return errors.Wrap(err, "cannot stat upstream file")
@@ -34,7 +35,8 @@ func File(p *deb.Package, recipe *recipe.Recipe, filePath, typ string) error {
 		}
 		defer f.Close()
 
-		if err := p.AddFile(path, f, fi); err != nil {
+		err = p.AddFile(path, f, fi)
+		if err != nil {
 			return errors.Wrapf(err, "cannot add %q file", name)
 		}
 	}

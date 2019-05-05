@@ -26,7 +26,8 @@ func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 			name = stripName(name, recipe.Source.Strip)
 		}
 
-		if path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream); ok {
+		path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream)
+		if ok {
 			fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(file.UncompressedSize64))
 
 			if confFile {
@@ -41,11 +42,13 @@ func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 
 			mode := file.Mode()
 			if mode&os.ModeDir == os.ModeDir {
-				if err := p.AddDir(path, mode); err != nil {
+				err = p.AddDir(path, mode)
+				if err != nil {
 					return errors.Wrapf(err, "cannot add %q dir", name)
 				}
 			} else {
-				if err := p.AddFile(path, f, file.FileInfo()); err != nil {
+				err = p.AddFile(path, f, file.FileInfo())
+				if err != nil {
 					return errors.Wrapf(err, "cannot add %q file", name)
 				}
 			}

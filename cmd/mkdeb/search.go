@@ -70,9 +70,11 @@ func execSearch(ctx *cli.Context) error {
 		return natsort.Compare(hits[i].Repository+"/"+hits[i].Name, hits[j].Repository+"/"+hits[j].Name)
 	})
 
-	format := "{{ if ne .Repository \"" + catalog.DefaultRepository +
-		"\" }}{{ .Repository }}/{{ end }}{{ .Name }}\t{{ .Description }}\n"
-	if v := ctx.String("format"); v != "" {
+	format := ctx.String("format")
+	if format == "" {
+		format = "{{ if ne .Repository \"" + catalog.DefaultRepository +
+			"\" }}{{ .Repository }}/{{ end }}{{ .Name }}\t{{ .Description }}\n"
+	} else {
 		format = strings.TrimSpace(v) + "\n"
 	}
 
