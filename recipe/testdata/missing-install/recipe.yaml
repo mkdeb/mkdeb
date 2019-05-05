@@ -10,4 +10,4 @@ source:
   url: https://example.org/path/to/foo-{{ .Version }}.{{ .Arch }}.tar.gz
 
 control:
-  description: A long package description providing us with enough information on the upstream software.
+  description: A long package description providing us with information on the upstream software.

@@ -307,12 +307,12 @@ func TestControlMaintainer(t *testing.T) {
 Version: 0.0.0
 Priority: extra
 Architecture: all
-Maintainer: Bob Kelso <10inches@example.org>
+Maintainer: Foo Bar <foo@example.org>
 Description: 
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Maintainer", "Bob Kelso <10inches@example.org>"))
+	assert.Nil(t, c.Set("Maintainer", "Foo Bar <foo@example.org>"))
 	assert.Equal(t, expected, c.String())
 }
 

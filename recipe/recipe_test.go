@@ -32,7 +32,7 @@ func TestRecipeValid(t *testing.T) {
 	assert.Equal(t, []string{"foobar"}, r.Control.Enhances)
 	assert.Equal(t, []string{"foobaz"}, r.Control.Breaks)
 	assert.Equal(t, []string{"foobarbaz"}, r.Control.Conflicts)
-	assert.Equal(t, "A long package description providing us with enough information on the upstream software.",
+	assert.Equal(t, "A long package description providing us with information on the upstream software.",
 		r.Control.Description)
 
 	// Check for "install" section
