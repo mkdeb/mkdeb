@@ -10,7 +10,7 @@ NEW:
   not an archive.
 * cmd/mkdeb: A "--recipe" command flag can be specified in build commands to
   specify a custom recipe path.
-* recipe: A exclusion pattern can be added to recipes install rules to exclude
+* recipe: An exclusion pattern can be added to recipes install rules to exclude
   files from resulting packages.
 * archive: Non compressed tar archives are now supported.
 
