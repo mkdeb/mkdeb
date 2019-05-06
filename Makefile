@@ -63,9 +63,7 @@ test: test-bin
 
 test-bin:
 	@$(call print_step,"Testing packages...")
-	@for pkg in $(PKG_LIST); do \
-		$(GO) test -cover -tags "$(TAGS)" -v ./$$pkg; \
-	done
+	@$(GO) test -cover -tags "$(TAGS)" -v $(PKG_LIST:%=./%)
 
 install: install-bin
 
