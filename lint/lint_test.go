@@ -304,6 +304,10 @@ func TestLintControlDescription(t *testing.T) {
 			input:    "",
 			problems: []*Problem{{LevelError, "control-description-empty", nil}},
 		},
+		{
+			input:    "A long package description providing us with information on the upstream software.",
+			problems: []*Problem{{LevelWarning, "control-description-wrap", []interface{}{82}}},
+		},
 	} {
 		l := linter{}
 		l.lintControlDescription(test.input)

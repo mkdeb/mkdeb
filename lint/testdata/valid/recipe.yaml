@@ -29,7 +29,9 @@ control:
   - foobaz
   conflicts:
   - foobarbaz
-  description: A long package description providing us with information on the upstream software.
+  description: |
+    A long package description providing us with information on the
+    upstream software.
 
 install:
   recipe:
