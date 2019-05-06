@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
 )
 
@@ -203,9 +204,22 @@ func (l *linter) lintControl(v *recipe.Control) {
 }
 
 func (l *linter) lintControlDescription(v string) {
+	var max int
+
 	if v == "" {
 		l.emit("control-description-empty")
 		return
+	}
+
+	for _, part := range strings.Split(v, "\n") {
+		cur := len(part)
+		if cur > deb.ControlDescriptionWrap {
+			max = cur
+		}
+	}
+
+	if max > 0 {
+		l.emit("control-description-wrap", max)
 	}
 }
 

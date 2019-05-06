@@ -17,6 +17,13 @@ Recipe control must not be empty.
 Recipe control description must not be empty.
 `,
 	},
+	"control-description-wrap": {
+		Tag:   "control-description-wrap",
+		Level: LevelWarning,
+		Description: `
+Recipe control description text should be wrapped at 76 characters.
+`,
+	},
 	"description-empty": {
 		Tag:   "description-empty",
 		Level: LevelError,

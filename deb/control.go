@@ -9,6 +9,9 @@ import (
 	wordwrap "github.com/mitchellh/go-wordwrap"
 )
 
+// ControlDescriptionWrap is the control description text wrapping value.
+const ControlDescriptionWrap = 76
+
 // Control is a Debian control.
 type Control struct {
 	name          string
@@ -109,7 +112,7 @@ func formatDepends(depends []string) string {
 }
 
 func formatDescription(desc string) string {
-	desc = wordwrap.WrapString(strings.TrimSpace(desc), 76)
+	desc = wordwrap.WrapString(strings.TrimSpace(desc), ControlDescriptionWrap)
 	desc = strings.Replace(desc, "\n\n", "\n.\n", -1)
 	desc = strings.Replace(desc, "\n", "\n ", -1)
 	return desc

@@ -11,4 +11,9 @@ rules:
   description: |
     Recipe control description must not be empty.
 
+- tag: control-description-wrap
+  level: warning
+  description: |
+    Recipe control description text should be wrapped at 76 characters.
+
 # vim: ts=2 sw=2 et
