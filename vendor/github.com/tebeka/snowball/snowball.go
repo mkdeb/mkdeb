@@ -1,8 +1,4 @@
 // Package snowball implements a stemmer
-//
-// Example:
-//  stemmer = snowball.New("english")
-//  fmt.Println(stemmer.stem("running")) // Will print "run"
 package snowball
 
 import (
@@ -19,7 +15,7 @@ import "C"
 
 const (
 	// Version is the library version
-	Version = "0.2.0"
+	Version = "0.3.0"
 )
 
 // Stemmer structure

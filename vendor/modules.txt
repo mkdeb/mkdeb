@@ -1,16 +1,17 @@
-# facette.io/natsort v0.0.0-20180722062153-6f9d4f1908ea
+# facette.io/natsort v0.0.0-20181210072756-2cd4dd1e2dcb
 facette.io/natsort
-# github.com/RoaringBitmap/roaring v0.4.16
+# github.com/RoaringBitmap/roaring v0.4.17
 github.com/RoaringBitmap/roaring
 # github.com/Smerity/govarint v0.0.0-20150407073650-7265e41f48f1
 github.com/Smerity/govarint
-# github.com/blakesmith/ar v0.0.0-20150311145944-8bd4349a67f2
+# github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb
 github.com/blakesmith/ar
 # github.com/blevesearch/bleve v0.7.0
 github.com/blevesearch/bleve
-github.com/blevesearch/bleve/config
-github.com/blevesearch/bleve/search/highlight/format/ansi
+github.com/blevesearch/bleve/analysis/token/lowercase
+github.com/blevesearch/bleve/analysis/tokenizer/single
 github.com/blevesearch/bleve/search/query
+github.com/blevesearch/bleve/config
 github.com/blevesearch/bleve/analysis
 github.com/blevesearch/bleve/analysis/datetime/optional
 github.com/blevesearch/bleve/document
@@ -27,6 +28,9 @@ github.com/blevesearch/bleve/search/collector
 github.com/blevesearch/bleve/search/facet
 github.com/blevesearch/bleve/search/highlight
 github.com/blevesearch/bleve/search/highlight/highlighter/html
+github.com/blevesearch/bleve/geo
+github.com/blevesearch/bleve/numeric
+github.com/blevesearch/bleve/search/searcher
 github.com/blevesearch/bleve/analysis/analyzer/custom
 github.com/blevesearch/bleve/analysis/analyzer/keyword
 github.com/blevesearch/bleve/analysis/analyzer/simple
@@ -72,7 +76,6 @@ github.com/blevesearch/bleve/analysis/token/edgengram
 github.com/blevesearch/bleve/analysis/token/elision
 github.com/blevesearch/bleve/analysis/token/keyword
 github.com/blevesearch/bleve/analysis/token/length
-github.com/blevesearch/bleve/analysis/token/lowercase
 github.com/blevesearch/bleve/analysis/token/ngram
 github.com/blevesearch/bleve/analysis/token/shingle
 github.com/blevesearch/bleve/analysis/token/stop
@@ -80,28 +83,25 @@ github.com/blevesearch/bleve/analysis/token/truncate
 github.com/blevesearch/bleve/analysis/token/unicodenorm
 github.com/blevesearch/bleve/analysis/tokenizer/exception
 github.com/blevesearch/bleve/analysis/tokenizer/regexp
-github.com/blevesearch/bleve/analysis/tokenizer/single
 github.com/blevesearch/bleve/analysis/tokenizer/unicode
 github.com/blevesearch/bleve/analysis/tokenizer/web
 github.com/blevesearch/bleve/analysis/tokenizer/whitespace
 github.com/blevesearch/bleve/analysis/tokenmap
 github.com/blevesearch/bleve/index/store/goleveldb
 github.com/blevesearch/bleve/index/store/moss
+github.com/blevesearch/bleve/search/highlight/format/ansi
 github.com/blevesearch/bleve/search/highlight/format/html
 github.com/blevesearch/bleve/search/highlight/fragmenter/simple
 github.com/blevesearch/bleve/search/highlight/highlighter/ansi
 github.com/blevesearch/bleve/search/highlight/highlighter/simple
-github.com/blevesearch/bleve/geo
-github.com/blevesearch/bleve/numeric
-github.com/blevesearch/bleve/search/searcher
 github.com/blevesearch/bleve/index/scorch/mergeplan
 github.com/blevesearch/bleve/index/scorch/segment
 github.com/blevesearch/bleve/index/scorch/segment/mem
 github.com/blevesearch/bleve/index/scorch/segment/zap
+github.com/blevesearch/bleve/search/scorer
 github.com/blevesearch/bleve/analysis/tokenizer/letter
 github.com/blevesearch/bleve/analysis/token/porter
 github.com/blevesearch/bleve/analysis/tokenizer/character
-github.com/blevesearch/bleve/search/scorer
 # github.com/blevesearch/blevex v0.0.0-20180227211930-4b158bb555a3
 github.com/blevesearch/blevex/cznicb
 github.com/blevesearch/blevex/detectlang
@@ -128,7 +128,7 @@ github.com/blevesearch/blevex/stemmer
 github.com/blevesearch/blevex/icu
 # github.com/blevesearch/cld2 v0.0.0-20150916130542-10f17c049ec9
 github.com/blevesearch/cld2
-# github.com/blevesearch/go-porterstemmer v1.0.1
+# github.com/blevesearch/go-porterstemmer v1.0.2
 github.com/blevesearch/go-porterstemmer
 # github.com/blevesearch/segment v0.0.0-20160915185041-762005e7a34f
 github.com/blevesearch/segment
@@ -147,19 +147,19 @@ github.com/blevesearch/snowballstem/turkish
 github.com/boltdb/bolt
 # github.com/couchbase/ghistogram v0.0.1-0.20170308220240-d910dd063dd6
 github.com/couchbase/ghistogram
-# github.com/couchbase/moss v0.0.0-20180702235058-956632ec1bc3
+# github.com/couchbase/moss v0.0.0-20190322010551-a0cae174c498
 github.com/couchbase/moss
-# github.com/couchbase/vellum v0.0.0-20180910213445-01d5c56e6095
+# github.com/couchbase/vellum v0.0.0-20190328134517-462e86d8716b
 github.com/couchbase/vellum
 github.com/couchbase/vellum/regexp
 github.com/couchbase/vellum/utf8
-# github.com/cznic/b v0.0.0-20180115125044-35e9bbe41f07
+# github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d
 github.com/cznic/b
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d
+# github.com/dustin/go-humanize v1.0.0
 github.com/dustin/go-humanize
-# github.com/edsrzf/mmap-go v0.0.0-20170320065105-0bce6a688712
+# github.com/edsrzf/mmap-go v1.0.0
 github.com/edsrzf/mmap-go
 # github.com/emirpasic/gods v1.9.0
 github.com/emirpasic/gods/trees/binaryheap
@@ -168,13 +168,18 @@ github.com/emirpasic/gods/lists/arraylist
 github.com/emirpasic/gods/trees
 github.com/emirpasic/gods/utils
 github.com/emirpasic/gods/lists
-# github.com/glycerine/go-unsnap-stream v0.0.0-20180323001048-9f0cb55181dd
+# github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2
 github.com/glycerine/go-unsnap-stream
-# github.com/golang/protobuf v1.2.0
+# github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
-# github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
+# github.com/golang/snappy v0.0.1
 github.com/golang/snappy
-# github.com/ikawaha/kagome.ipadic v0.0.0-20171117044240-dd3ae0544a80
+# github.com/h2non/filetype v1.0.8
+github.com/h2non/filetype
+github.com/h2non/filetype/matchers
+github.com/h2non/filetype/types
+github.com/h2non/filetype/matchers/isobmff
+# github.com/ikawaha/kagome.ipadic v1.0.1
 github.com/ikawaha/kagome.ipadic/tokenizer
 github.com/ikawaha/kagome.ipadic/internal/dic
 github.com/ikawaha/kagome.ipadic/internal/lattice
@@ -182,17 +187,17 @@ github.com/ikawaha/kagome.ipadic/internal/da
 github.com/ikawaha/kagome.ipadic/internal/dic/data
 # github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99
 github.com/jbenet/go-context/io
-# github.com/jmhodges/levigo v0.0.0-20161115193449-c42d9e0ca023
+# github.com/jmhodges/levigo v1.0.0
 github.com/jmhodges/levigo
 # github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e
 github.com/kevinburke/ssh_config
-# github.com/mattn/go-colorable v0.0.9
+# github.com/mattn/go-colorable v0.1.1
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.4
+# github.com/mattn/go-isatty v0.0.5
 github.com/mattn/go-isatty
 # github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 github.com/mgutz/ansi
-# github.com/mitchellh/go-homedir v1.0.0
+# github.com/mitchellh/go-homedir v1.1.0
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/go-wordwrap v1.0.0
 github.com/mitchellh/go-wordwrap
@@ -202,7 +207,7 @@ github.com/mschoch/smat
 github.com/pelletier/go-buffruneio
 # github.com/philhofer/fwd v1.0.0
 github.com/philhofer/fwd
-# github.com/pkg/errors v0.8.0
+# github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -215,9 +220,9 @@ github.com/src-d/gcfg/token
 github.com/src-d/gcfg/types
 # github.com/steveyen/gtreap v0.0.0-20150807155958-0abe01ef9be2
 github.com/steveyen/gtreap
-# github.com/stretchr/testify v1.2.2
+# github.com/stretchr/testify v1.3.0
 github.com/stretchr/testify/assert
-# github.com/syndtr/goleveldb v0.0.0-20180815032940-ae2bd5eed72d
+# github.com/syndtr/goleveldb v1.0.0
 github.com/syndtr/goleveldb/leveldb
 github.com/syndtr/goleveldb/leveldb/filter
 github.com/syndtr/goleveldb/leveldb/iterator
@@ -230,24 +235,24 @@ github.com/syndtr/goleveldb/leveldb/journal
 github.com/syndtr/goleveldb/leveldb/memdb
 github.com/syndtr/goleveldb/leveldb/storage
 github.com/syndtr/goleveldb/leveldb/table
-# github.com/tebeka/snowball v0.0.0-20170101150807-6b06bd306c4e
+# github.com/tebeka/snowball v0.3.0
 github.com/tebeka/snowball
-# github.com/tecbot/gorocksdb v0.0.0-20180907100951-214b6b7bc0f0
+# github.com/tecbot/gorocksdb v0.0.0-20181010114359-8752a9433481
 github.com/tecbot/gorocksdb
-# github.com/tinylib/msgp v1.0.2
+# github.com/tinylib/msgp v1.1.0
 github.com/tinylib/msgp/msgp
-# github.com/ulikunitz/xz v0.5.4
+# github.com/ulikunitz/xz v0.5.6
 github.com/ulikunitz/xz
 github.com/ulikunitz/xz/internal/xlog
 github.com/ulikunitz/xz/lzma
 github.com/ulikunitz/xz/internal/hash
 # github.com/urfave/cli v1.20.0
 github.com/urfave/cli
-# github.com/willf/bitset v1.1.9
+# github.com/willf/bitset v1.1.10
 github.com/willf/bitset
 # github.com/xanzy/ssh-agent v0.2.0
 github.com/xanzy/ssh-agent
-# golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
+# golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/openpgp/armor
 golang.org/x/crypto/openpgp/errors
@@ -264,28 +269,26 @@ golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/internal/subtle
-# golang.org/x/net v0.0.0-20180911220305-26e67e76b6c3
+# golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20180903190138-2b024373dcd9
+# golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223
 golang.org/x/sys/windows
 golang.org/x/sys/unix
-# golang.org/x/text v0.3.0
+# golang.org/x/text v0.3.2
 golang.org/x/text/feature/plural
 golang.org/x/text/language
 golang.org/x/text/message
 golang.org/x/text/internal/catmsg
+golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/number
 golang.org/x/text/message/catalog
-golang.org/x/text/internal/tag
+golang.org/x/text/internal/language
 golang.org/x/text/internal/format
 golang.org/x/text/unicode/norm
-golang.org/x/text/internal
 golang.org/x/text/internal/stringset
+golang.org/x/text/internal
+golang.org/x/text/internal/tag
 golang.org/x/text/transform
-# gopkg.in/h2non/filetype.v1 v1.0.5
-gopkg.in/h2non/filetype.v1
-gopkg.in/h2non/filetype.v1/matchers
-gopkg.in/h2non/filetype.v1/types
 # gopkg.in/src-d/go-billy.v4 v4.2.1
 gopkg.in/src-d/go-billy.v4
 gopkg.in/src-d/go-billy.v4/osfs
@@ -294,9 +297,9 @@ gopkg.in/src-d/go-billy.v4/helper/chroot
 gopkg.in/src-d/go-billy.v4/helper/polyfill
 # gopkg.in/src-d/go-git.v4 v4.11.0
 gopkg.in/src-d/go-git.v4
+gopkg.in/src-d/go-git.v4/plumbing
 gopkg.in/src-d/go-git.v4/config
 gopkg.in/src-d/go-git.v4/internal/revision
-gopkg.in/src-d/go-git.v4/plumbing
 gopkg.in/src-d/go-git.v4/plumbing/cache
 gopkg.in/src-d/go-git.v4/plumbing/filemode
 gopkg.in/src-d/go-git.v4/plumbing/format/gitignore
@@ -336,5 +339,5 @@ gopkg.in/src-d/go-git.v4/plumbing/transport/internal/common
 gopkg.in/src-d/go-git.v4/plumbing/transport/server
 # gopkg.in/warnings.v0 v0.1.2
 gopkg.in/warnings.v0
-# gopkg.in/yaml.v2 v2.2.1
+# gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2

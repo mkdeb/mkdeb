@@ -21,10 +21,10 @@ func (s stringSlice) Swap(a, b int) {
 	s[a], s[b] = s[b], s[a]
 }
 
-func chunkify(s string) []string {
-	re, _ := regexp.Compile(`(\d+|\D+)`)
+var chunkifyRegexp = regexp.MustCompile(`(\d+|\D+)`)
 
-	return re.FindAllString(s, -1)
+func chunkify(s string) []string {
+	return chunkifyRegexp.FindAllString(s, -1)
 }
 
 // Sort sorts a list of strings in a natural order
@@ -41,6 +41,10 @@ func Compare(a, b string) bool {
 	nChunksB := len(chunksB)
 
 	for i := range chunksA {
+		if i >= nChunksB {
+			return false
+		}
+
 		aInt, aErr := strconv.Atoi(chunksA[i])
 		bInt, bErr := strconv.Atoi(chunksB[i])
 
