@@ -40,7 +40,14 @@ func Lint(rcp *recipe.Recipe, problems []*lint.Problem) {
 
 		args := []string{""}
 		for _, arg := range p.Args {
-			args = append(args, fmt.Sprintf("%q", arg))
+			format := "%v"
+
+			switch arg.(type) {
+			case string, fmt.Stringer:
+				format = "%q"
+			}
+
+			args = append(args, fmt.Sprintf(format, arg))
 		}
 
 		fmt.Printf(
