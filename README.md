@@ -1,4 +1,4 @@
-mkdeb [![][godoc-badge]][godoc] [![][report-badge]][report]
+mkdeb [![][travis-badge]][travis] [![][godoc-badge]][godoc] [![][report-badge]][report]
 =====
 
 [mkdeb][project] is an open source application to generate Debian packages from upstream release archives.
@@ -26,3 +26,5 @@ Packages are built using recipes provided in a separate Git [repository][recipes
 [report-badge]: https://goreportcard.com/badge/mkdeb.sh
 [report]:       https://goreportcard.com/report/mkdeb.sh
 [source]:       https://github.com/mkdeb/mkdeb
+[travis-badge]: https://api.travis-ci.org/mkdeb/mkdeb.svg?branch=master
+[travis]:       https://travis-ci.org/mkdeb/mkdeb
