@@ -56,6 +56,10 @@ func execLint(ctx *cli.Context) error {
 		}
 	} else {
 		c.Walk(func(rcp *recipe.Recipe, repo *catalog.Repository, err error) error {
+			if err != nil {
+				return err
+			}
+
 			problems, ok := lint.Lint(rcp)
 			if !ok {
 				failed = true
