@@ -1,0 +1,15 @@
+---
+language: go
+
+go:
+- "1.12.x"
+- "1.11.x"
+
+go_import_path: mkdeb.sh
+
+script:
+- make test
+
+notifications:
+  email:
+  - dev@mkdeb.sh
