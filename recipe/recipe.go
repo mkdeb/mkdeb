@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -58,7 +58,7 @@ func LoadRecipe(path string) (*Recipe, error) {
 	// Load control and recipe files references from filesystem
 	files, err := ioutil.ReadDir(filepath.Join(path, "control"))
 	if err != nil && !os.IsNotExist(err) {
-		return nil, errors.Wrap(err, "cannot read control directory")
+		return nil, xerrors.Errorf("cannot read control directory: %w", err)
 	}
 
 	for _, fi := range files {
@@ -70,7 +70,7 @@ func LoadRecipe(path string) (*Recipe, error) {
 
 	files, err = ioutil.ReadDir(filepath.Join(path, "files"))
 	if err != nil && !os.IsNotExist(err) {
-		return nil, errors.Wrap(err, "cannot read files directory")
+		return nil, xerrors.Errorf("cannot read files directory: %w", err)
 	}
 
 	for _, fi := range files {

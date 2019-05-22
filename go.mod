@@ -28,7 +28,6 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-wordwrap v1.0.0
-	github.com/pkg/errors v0.8.1
 	github.com/steveyen/gtreap v0.0.0-20150807155958-0abe01ef9be2 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.0 // indirect
@@ -37,6 +36,7 @@ require (
 	github.com/ulikunitz/xz v0.5.6
 	github.com/urfave/cli v1.20.0
 	golang.org/x/text v0.3.2
+	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
 	gopkg.in/src-d/go-git.v4 v4.11.0
 	gopkg.in/yaml.v2 v2.2.2
 )

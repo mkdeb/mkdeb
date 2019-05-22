@@ -1,11 +1,11 @@
 package catalog
 
-import "errors"
+import "golang.org/x/xerrors"
 
 // Errors:
 var (
-	ErrAlreadyUpToDate    = errors.New("already up-to-date")
-	ErrRecipeNotFound     = errors.New("recipe not found")
-	ErrRepositoryExist    = errors.New("repository already exists")
-	ErrRepositoryNotExist = errors.New("repository does not exist")
+	ErrAlreadyUpToDate    = xerrors.New("already up-to-date")
+	ErrRecipeNotFound     = xerrors.New("recipe not found")
+	ErrRepositoryExist    = xerrors.New("repository already exists")
+	ErrRepositoryNotExist = xerrors.New("repository does not exist")
 )

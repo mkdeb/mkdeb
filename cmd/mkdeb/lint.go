@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/catalog"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 	"mkdeb.sh/lint"
@@ -37,7 +37,7 @@ func execLint(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 

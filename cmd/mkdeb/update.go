@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/catalog"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
@@ -36,7 +36,7 @@ func execUpdate(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -58,14 +58,14 @@ func execUpdate(ctx *cli.Context) error {
 			if err == catalog.ErrAlreadyUpToDate {
 				fmt.Println(err)
 			} else if err != nil {
-				return errors.Wrap(err, "cannot update repository")
+				return xerrors.Errorf("cannot update repository: %w", err)
 			}
 		}
 	}
 
 	count, err := c.Index()
 	if err != nil {
-		return errors.Wrap(err, "cannot index repositories")
+		return xerrors.Errorf("cannot index repositories: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",

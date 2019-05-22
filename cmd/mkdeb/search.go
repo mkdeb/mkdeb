@@ -10,8 +10,8 @@ import (
 
 	"facette.io/natsort"
 	_ "github.com/blevesearch/bleve/config"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/catalog"
 )
 
@@ -46,7 +46,7 @@ func execSearch(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -54,7 +54,7 @@ func execSearch(ctx *cli.Context) error {
 
 	hits, err := c.Search(term, ctx.Bool("desc"))
 	if err != nil {
-		return errors.Wrap(err, "cannot search catalog")
+		return xerrors.Errorf("cannot search catalog: %w", err)
 	}
 
 	if len(hits) == 0 {
@@ -80,14 +80,14 @@ func execSearch(ctx *cli.Context) error {
 
 	tmpl, err := template.New("").Parse(format)
 	if err != nil {
-		return errors.Wrap(err, "invalid format")
+		return xerrors.Errorf("invalid format: %w", err)
 	}
 
 	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for _, hit := range hits {
 		err = tmpl.Execute(tr, hit)
 		if err != nil {
-			return errors.Wrap(err, "cannot execute template")
+			return xerrors.Errorf("cannot execute template: %w", err)
 		}
 	}
 	tr.Flush()

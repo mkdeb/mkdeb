@@ -14,11 +14,11 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/mgutz/ansi"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/catalog"
 	"mkdeb.sh/cmd/mkdeb/internal/handler"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
@@ -76,12 +76,12 @@ func execBuild(ctx *cli.Context) error {
 	if install {
 		_, err := exec.LookPath("apt-get")
 		if err != nil {
-			return errors.New(`flag "--install" can only be used on Debian-based systems`)
+			return xerrors.New(`flag "--install" can only be used on Debian-based systems`)
 		}
 	}
 
 	if ctx.String("to") != "" && ctx.NArg() > 1 {
-		return errors.New(`flag "--to" cannot be used when multiple packages are being built`)
+		return xerrors.New(`flag "--to" cannot be used when multiple packages are being built`)
 	}
 
 	if !catalog.Ready(catalogDir) {
@@ -93,7 +93,7 @@ func execBuild(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -108,7 +108,7 @@ func execBuild(ctx *cli.Context) error {
 			arch = "all"
 		}
 		if version == "" {
-			return errors.New("missing recipe version")
+			return xerrors.New("missing recipe version")
 		}
 
 		rcpPath := ctx.String("recipe")
@@ -120,7 +120,7 @@ func execBuild(ctx *cli.Context) error {
 		if err == catalog.ErrRecipeNotFound {
 			return err
 		} else if err != nil {
-			return errors.Wrap(err, "cannot load recipe")
+			return xerrors.Errorf("cannot load recipe: %w", err)
 		}
 
 		print.Section("Package %s", ansi.Color(name, "green+b"))
@@ -129,7 +129,7 @@ func execBuild(ctx *cli.Context) error {
 		if from == "" {
 			from, err = downloadArchive(arch, version, rcp, ctx.Bool("skip-cache"))
 			if err != nil {
-				return errors.Wrap(err, "cannot download upstream archive")
+				return xerrors.Errorf("cannot download upstream archive: %w", err)
 			}
 		}
 
@@ -145,7 +145,7 @@ func execBuild(ctx *cli.Context) error {
 
 		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), rcp, from, to)
 		if err != nil {
-			return errors.Wrap(err, "cannot create package")
+			return xerrors.Errorf("cannot create package: %w", err)
 		}
 
 		print.Summary("📦", info.String())
@@ -199,7 +199,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 
 	v, ok := rcp.Source.ArchMapping[arch]
 	if !ok {
-		return "", errors.New("unsupported architecture")
+		return "", xerrors.New("unsupported architecture")
 	}
 	arch = v
 
@@ -208,9 +208,9 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 
 	tmpl, err := template.New("").Parse(rcp.Source.URL)
 	if err != nil {
-		return "", errors.Wrap(err, "cannot parse URL template")
+		return "", xerrors.Errorf("cannot parse URL template: %w", err)
 	} else if err = tmpl.Execute(buf, struct{ Arch, Version string }{arch, version}); err != nil {
-		return "", errors.Wrap(err, "cannot execute URL template")
+		return "", xerrors.Errorf("cannot execute URL template: %w", err)
 	}
 
 	url := buf.String()
@@ -230,7 +230,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	_, err = os.Stat(dirPath)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(dirPath, 0755); err != nil {
-			return "", errors.Wrap(err, "cannot create cache directory")
+			return "", xerrors.Errorf("cannot create cache directory: %w", err)
 		}
 	}
 
@@ -243,7 +243,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	defer req.Body.Close()
 
 	if req.StatusCode >= 400 {
-		return "", errors.New(req.Status)
+		return "", xerrors.New(req.Status)
 	}
 
 	f, err := os.Create(path)
@@ -291,7 +291,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 	_, ok := rcp.Source.ArchMapping[arch]
 	if !ok {
-		return nil, errors.New("unsupported architecture")
+		return nil, xerrors.New("unsupported architecture")
 	}
 
 	p, err := deb.NewPackage(rcp.Name, arch, version, epoch, revision)
@@ -341,11 +341,11 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 			src, err := os.Open(f.Path)
 			if err != nil {
-				return nil, errors.Wrapf(err, "cannot open %q file", name)
+				return nil, xerrors.Errorf("cannot open %q file: %w", name, err)
 			}
 
 			if err = p.AddControlFile(name, src, f.FileInfo); err != nil {
-				return nil, errors.Wrapf(err, "cannot add %q file", name)
+				return nil, xerrors.Errorf("cannot add %q file: %w", name, err)
 			}
 		}
 	}
@@ -374,7 +374,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 	}
 
 	if f == nil {
-		return nil, errors.New("unsupported source")
+		return nil, xerrors.New("unsupported source")
 	}
 
 	err = f(p, rcp, from, subtype)
@@ -398,11 +398,11 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 				src, err := os.Open(f.Path)
 				if err != nil {
-					return nil, errors.Wrapf(err, "cannot open %q file", name)
+					return nil, xerrors.Errorf("cannot open %q file: %w", name, err)
 				}
 
 				if err = p.AddFile(path, src, f.FileInfo); err != nil {
-					return nil, errors.Wrapf(err, "cannot add %q file", name)
+					return nil, xerrors.Errorf("cannot add %q file: %w", name, err)
 				}
 			}
 		}
@@ -415,7 +415,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 			fmt.Printf("append %q\n", path)
 
 			if err = p.AddDir(path, 0755); err != nil {
-				return nil, errors.Wrapf(err, "cannot add %q directory", path)
+				return nil, xerrors.Errorf("cannot add %q directory: %w", path, err)
 			}
 		}
 	}
@@ -427,7 +427,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 			fmt.Printf("link %q to %q\n", src, dst)
 
 			if err = p.AddLink(dst, src); err != nil {
-				return nil, errors.Wrapf(err, "cannot add %q link", dst)
+				return nil, xerrors.Errorf("cannot add %q link: %w", dst, err)
 			}
 		}
 	}
@@ -441,7 +441,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 		wd, err := os.Getwd()
 		if err != nil {
-			return nil, errors.Wrap(err, "cannot get current directory")
+			return nil, xerrors.Errorf("cannot get current directory: %w", err)
 		}
 
 		to = filepath.Join(wd, fmt.Sprintf("%s_%s_%s.deb", p.Name, v, p.Arch))
@@ -458,12 +458,12 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 	err = p.Write(file)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot write package")
+		return nil, xerrors.Errorf("cannot write package: %w", err)
 	}
 
 	fi, err := os.Stat(info.Path)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot get file size")
+		return nil, xerrors.Errorf("cannot get file size: %w", err)
 	}
 
 	info.Size = fi.Size()

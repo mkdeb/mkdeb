@@ -207,8 +207,6 @@ github.com/mschoch/smat
 github.com/pelletier/go-buffruneio
 # github.com/philhofer/fwd v1.0.0
 github.com/philhofer/fwd
-# github.com/pkg/errors v0.8.1
-github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/sergi/go-diff v1.0.0
@@ -289,6 +287,9 @@ golang.org/x/text/internal/stringset
 golang.org/x/text/internal
 golang.org/x/text/internal/tag
 golang.org/x/text/transform
+# golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
+golang.org/x/xerrors
+golang.org/x/xerrors/internal
 # gopkg.in/src-d/go-billy.v4 v4.2.1
 gopkg.in/src-d/go-billy.v4
 gopkg.in/src-d/go-billy.v4/osfs

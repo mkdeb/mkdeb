@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/blakesmith/ar"
-	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/archive"
 )
 
@@ -36,12 +36,12 @@ func NewPackage(name, arch, version string, epoch uint, revision int) (*Package,
 	// Initialize archives that will receive internal package data
 	control, err := archive.NewWriterBuffer(archive.CompressGzip)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create control archive")
+		return nil, xerrors.Errorf("cannot create control archive: %w", err)
 	}
 
 	data, err := archive.NewWriterBuffer(archive.CompressXZ)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create data archive")
+		return nil, xerrors.Errorf("cannot create data archive: %w", err)
 	}
 
 	return &Package{
@@ -160,48 +160,48 @@ func (p *Package) Write(w io.Writer) error {
 	// Add generated control files
 	err := p.Control.Set("Name", p.Name)
 	if err != nil {
-		return errors.Wrap(err, "cannot set name")
+		return xerrors.Errorf("cannot set name: %w", err)
 	}
 
 	err = p.Control.Set("Version", p.Version.String())
 	if err != nil {
-		return errors.Wrap(err, "cannot set version")
+		return xerrors.Errorf("cannot set version: %w", err)
 	}
 
 	err = p.Control.Set("Architecture", p.Arch)
 	if err != nil {
-		return errors.Wrap(err, "cannot set architecture")
+		return xerrors.Errorf("cannot set architecture: %w", err)
 	}
 
 	if len(p.confFiles) > 0 {
 		src = bytes.NewBuffer([]byte(strings.Join(p.confFiles, "\n") + "\n"))
 		err = p.AddControlFile("conffiles", src, newFileInfo("conffiles", int64(src.Len()), 0644, now, false))
 		if err != nil {
-			return errors.Wrap(err, "cannot add \"conffiles\" file")
+			return xerrors.Errorf("cannot add \"conffiles\" file: %w", err)
 		}
 	}
 
 	src = bytes.NewBuffer([]byte(p.Control.String()))
 	err = p.AddControlFile("control", src, newFileInfo("control", int64(src.Len()), 0644, now, false))
 	if err != nil {
-		return errors.Wrap(err, "cannot add \"control\" file")
+		return xerrors.Errorf("cannot add \"control\" file: %w", err)
 	}
 
 	src = bytes.NewBuffer(p.md5sums.Bytes())
 	err = p.AddControlFile("md5sums", src, newFileInfo("md5sums", int64(src.Len()), 0644, now, false))
 	if err != nil {
-		return errors.Wrap(err, "cannot add \"md5sums\" file")
+		return xerrors.Errorf("cannot add \"md5sums\" file: %w", err)
 	}
 
 	// Close internal archives prior to write their content to prevent incomplete data
 	err = p.control.Close()
 	if err != nil {
-		return errors.Wrap(err, "cannot close control archive")
+		return xerrors.Errorf("cannot close control archive: %w", err)
 	}
 
 	err = p.data.Close()
 	if err != nil {
-		return errors.Wrap(err, "cannot close data archive")
+		return xerrors.Errorf("cannot close data archive: %w", err)
 	}
 
 	// Initialize archive file and append content
@@ -210,17 +210,17 @@ func (p *Package) Write(w io.Writer) error {
 
 	err = p.append("debian-binary", []byte("2.0\n"), now)
 	if err != nil {
-		return errors.Wrap(err, "cannot append debian-binary")
+		return xerrors.Errorf("cannot append debian-binary: %w", err)
 	}
 
 	err = p.append("control.tar.gz", p.control.Bytes(), now)
 	if err != nil {
-		return errors.Wrap(err, "cannot append control.tar.gz")
+		return xerrors.Errorf("cannot append control.tar.gz: %w", err)
 	}
 
 	err = p.append("data.tar.xz", p.data.Bytes(), now)
 	if err != nil {
-		return errors.Wrap(err, "cannot append data.tar.xz")
+		return xerrors.Errorf("cannot append data.tar.xz: %w", err)
 	}
 
 	return nil

@@ -8,11 +8,11 @@ import (
 	"text/template"
 
 	"github.com/mgutz/ansi"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/catalog"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
@@ -80,7 +80,7 @@ func execAdd(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -90,9 +90,9 @@ func execAdd(ctx *cli.Context) error {
 
 	count, err := c.InstallRepository(name, url, branch, ctx.Bool("force"))
 	if err == catalog.ErrRepositoryExist {
-		return errors.New(`repository already installed, use "--force" to reinstall`)
+		return xerrors.New(`repository already installed, use "--force" to reinstall`)
 	} else if err != nil {
-		return errors.Wrap(err, "cannot install repository")
+		return xerrors.Errorf("cannot install repository: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",
@@ -108,7 +108,7 @@ func execAdd(ctx *cli.Context) error {
 func execList(ctx *cli.Context) error {
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -126,14 +126,14 @@ func execList(ctx *cli.Context) error {
 
 	tmpl, err := template.New("").Parse(format)
 	if err != nil {
-		return errors.Wrap(err, "invalid format")
+		return xerrors.Errorf("invalid format: %w", err)
 	}
 
 	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for _, repo := range repos {
 		err = tmpl.Execute(tr, repo)
 		if err != nil {
-			return errors.Wrap(err, "cannot execute template")
+			return xerrors.Errorf("cannot execute template: %w", err)
 		}
 	}
 	tr.Flush()
@@ -153,7 +153,7 @@ func execRemove(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return errors.Wrap(err, "cannot initialize catalog")
+		return xerrors.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -162,7 +162,7 @@ func execRemove(ctx *cli.Context) error {
 
 	count, err := c.UninstallRepository(name)
 	if err != nil {
-		return errors.Wrap(err, "cannot uninstall repository")
+		return xerrors.Errorf("cannot uninstall repository: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",

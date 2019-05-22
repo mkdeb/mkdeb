@@ -6,7 +6,7 @@ import (
 	"os"
 
 	humanize "github.com/dustin/go-humanize"
-	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
 )
@@ -16,7 +16,7 @@ func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 	// Create a new reader for the source archive
 	r, err := zip.OpenReader(path)
 	if err != nil {
-		return errors.Wrap(err, "cannot open upstream archive")
+		return xerrors.Errorf("cannot open upstream archive: %w", err)
 	}
 	defer r.Close()
 
@@ -36,7 +36,7 @@ func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 
 			f, err := file.Open()
 			if err != nil {
-				return errors.Wrapf(err, "cannot open %q file", file.Name)
+				return xerrors.Errorf("cannot open %q file: %w", file.Name, err)
 			}
 			defer f.Close()
 
@@ -44,12 +44,12 @@ func Zip(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 			if mode&os.ModeDir == os.ModeDir {
 				err = p.AddDir(path, mode)
 				if err != nil {
-					return errors.Wrapf(err, "cannot add %q dir", name)
+					return xerrors.Errorf("cannot add %q dir: %w", name, err)
 				}
 			} else {
 				err = p.AddFile(path, f, file.FileInfo())
 				if err != nil {
-					return errors.Wrapf(err, "cannot add %q file", name)
+					return xerrors.Errorf("cannot add %q file: %w", name, err)
 				}
 			}
 		}
