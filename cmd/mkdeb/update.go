@@ -34,6 +34,13 @@ func execUpdate(ctx *cli.Context) error {
 		cli.ShowCommandHelpAndExit(ctx, "update", 1)
 	}
 
+	if !catalog.Ready(catalogDir) {
+		err := ctx.App.Run([]string{ctx.App.Name, "repo", "add", catalog.DefaultRepository})
+		if err != nil {
+			return err
+		}
+	}
+
 	c, err := catalog.New(catalogDir)
 	if err != nil {
 		return xerrors.Errorf("cannot initialize catalog: %w", err)
