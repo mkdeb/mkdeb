@@ -66,7 +66,7 @@ func (fi headerFileInfo) Size() int64 {
 }
 
 func (fi headerFileInfo) Mode() os.FileMode {
-	return os.FileMode(fi.h.Mode)
+	return fi.h.Mode
 }
 
 func (fi headerFileInfo) ModTime() time.Time {

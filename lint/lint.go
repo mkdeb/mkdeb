@@ -24,8 +24,7 @@ const (
 
 // Info returns information about a linting rule.
 func Info(tag string) *RuleInfo {
-	info, _ := rules[tag]
-	return info
+	return rules[tag]
 }
 
 // Lint inspects recipe and tries to detect problems or guidelines violations.

@@ -64,17 +64,20 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 				p.RegisterConfFile(path)
 			}
 
-			if h.Mode&os.ModeDir == os.ModeDir {
+			switch {
+			case h.Mode&os.ModeDir == os.ModeDir:
 				err = p.AddDir(path, h.Mode)
 				if err != nil {
 					return errors.Wrapf(err, "cannot add %q dir", name)
 				}
-			} else if h.Mode&os.ModeSymlink == os.ModeSymlink {
+
+			case h.Mode&os.ModeSymlink == os.ModeSymlink:
 				err = p.AddLink(path, h.LinkName)
 				if err != nil {
 					return errors.Wrapf(err, "cannot add %q link", name)
 				}
-			} else {
+
+			default:
 				err = p.AddFile(path, src, h.FileInfo())
 				if err != nil {
 					return errors.Wrapf(err, "cannot add %q file", name)

@@ -10,10 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	testPkg  *Package
-	lastSize int64
-)
+var testPkg *Package
 
 func init() {
 	testPkg, _ = NewPackage("foo", "all", "1.2.3", 0, 1)
