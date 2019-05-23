@@ -3,7 +3,7 @@ mkdeb [![][travis-badge]][travis] [![][godoc-badge]][godoc] [![][report-badge]][
 
 [mkdeb][project] is an open source application to generate Debian packages from upstream release archives.
 
-The source code is available at [Github][source] and is licensed under the terms of the [Apache License 2.0][license].
+The source code is available at [GitHub][source] and is licensed under the terms of the [Apache License 2.0][license].
 
 Installation
 ------------
