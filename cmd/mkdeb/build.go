@@ -131,9 +131,17 @@ func execBuild(ctx *cli.Context) error {
 			if err != nil {
 				return xerrors.Errorf("cannot download upstream archive: %w", err)
 			}
+		} else {
+			rcp.Source.URL = "<unused>"
+			rcp.Source.Type = "file"
 		}
 
-		print.Step("Using %q upstream archive...", from)
+		fi, err := os.Stat(from)
+		if err == nil && fi.IsDir() {
+			print.Step("Using %q upstream folder...", from)
+		} else {
+			print.Step("Using %q upstream file...", from)
+		}
 
 		// Get for output file path (will be overwritten if left empty)
 		epoch := ctx.Uint("epoch")

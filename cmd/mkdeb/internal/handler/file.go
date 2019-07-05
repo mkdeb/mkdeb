@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	humanize "github.com/dustin/go-humanize"
 	"golang.org/x/xerrors"
@@ -13,15 +14,28 @@ import (
 
 // File is an upstream source file handler.
 func File(p *deb.Package, recipe *recipe.Recipe, filePath, typ string) error {
-	name := filepath.Base(filePath)
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return xerrors.Errorf("cannot stat upstream file: %w", err)
+	}
 
+	if fi.IsDir() {
+		return filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			} else if info.IsDir() {
+				return nil
+			}
+			return file(p, recipe, strings.TrimPrefix(path, filePath+"/"), path, info)
+		})
+	}
+
+	return file(p, recipe, filepath.Base(filePath), filePath, fi)
+}
+
+func file(p *deb.Package, recipe *recipe.Recipe, name, filePath string, fi os.FileInfo) error {
 	path, confFile, ok := recipe.InstallPath(name, recipe.Install.Upstream)
 	if ok {
-		fi, err := os.Stat(filePath)
-		if err != nil {
-			return xerrors.Errorf("cannot stat upstream file: %w", err)
-		}
-
 		fmt.Printf("append %q as %q (%s)\n", name, path, humanize.Bytes(uint64(fi.Size())))
 
 		if confFile {
