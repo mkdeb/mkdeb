@@ -80,54 +80,56 @@ func TestRecipeValid(t *testing.T) {
 
 func TestRecipeUnsupportedVersion(t *testing.T) {
 	r, err := LoadRecipe("testdata/unsupported-version")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrUnsupportedVersion, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrUnsupportedVersion, r.Validate())
 }
 
 func TestRecipeMissingName(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-name")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingName, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingName, r.Validate())
 }
 
 func TestRecipeMissingDescription(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-description")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingDescription, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingDescription, r.Validate())
 }
 
 func TestRecipeMissingMaintainer(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-maintainer")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingMaintainer, err)
-}
-
-func TestRecipeMissingSource(t *testing.T) {
-	r, err := LoadRecipe("testdata/missing-source")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingSource, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingMaintainer, r.Validate())
 }
 
 func TestRecipeMissingSourceURL(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-source-url")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingSourceURL, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingSourceURL, r.Validate())
 }
 
 func TestRecipeMissingControl(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-control")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingControl, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingControl, r.Validate())
 }
 
 func TestRecipeMissingControlDescription(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-control-description")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingControlDescription, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingControlDescription, r.Validate())
 }
 
 func TestRecipeMissingInstall(t *testing.T) {
 	r, err := LoadRecipe("testdata/missing-install")
-	assert.Nil(t, r)
-	assert.Equal(t, ErrMissingInstall, err)
+	assert.NotNil(t, r)
+	assert.Nil(t, err)
+	assert.Equal(t, ErrMissingInstall, r.Validate())
 }

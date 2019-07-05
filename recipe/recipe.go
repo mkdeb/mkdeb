@@ -41,12 +41,11 @@ func LoadRecipe(path string) (*Recipe, error) {
 		return nil, err
 	}
 
-	err = r.validate()
-	if err != nil {
-		return nil, err
+	// Set defaults
+	if r.Source == nil {
+		r.Source = &Source{}
 	}
 
-	// Set defaults
 	if r.Source.Type == "" {
 		r.Source.Type = defaultSourceType
 	}
@@ -101,7 +100,8 @@ func (r *Recipe) InstallPath(path string, m InstallMap) (string, bool, bool) {
 	return "", false, false
 }
 
-func (r *Recipe) validate() error {
+// Validate checks for recipe validity.
+func (r *Recipe) Validate() error {
 	switch {
 	case !VersionSupported(r.Version):
 		return ErrUnsupportedVersion

@@ -143,6 +143,12 @@ func execBuild(ctx *cli.Context) error {
 
 		to := ctx.String("to")
 
+		// Ensure recipe is valid before build
+		err = rcp.Validate()
+		if err != nil {
+			return err
+		}
+
 		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), rcp, from, to)
 		if err != nil {
 			return xerrors.Errorf("cannot create package: %w", err)
