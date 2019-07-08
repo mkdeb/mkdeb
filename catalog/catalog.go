@@ -159,7 +159,23 @@ func (c *Catalog) Repositories() ([]*Repository, error) {
 			}
 
 			for _, file := range files {
-				if file.IsDir() {
+				var validLink bool
+
+				// Check for linked repositories
+				if file.Mode()&os.ModeSymlink == os.ModeSymlink {
+					linkPath, err := filepath.EvalSymlinks(filepath.Join(path, namespace.Name(), file.Name()))
+					if err != nil {
+						return nil, err
+					}
+
+					fi, err := os.Stat(linkPath)
+					if err != nil {
+						return nil, err
+					}
+					validLink = fi.IsDir()
+				}
+
+				if file.IsDir() || validLink {
 					repo, err := NewRepositoryFromPath(filepath.Join(path, namespace.Name(), file.Name()))
 					if err != nil {
 						return nil, err
