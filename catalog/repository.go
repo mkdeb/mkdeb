@@ -115,7 +115,14 @@ func (r *Repository) Walk(f func(recipe *recipe.Recipe, err error) error) error 
 	for _, entry := range idx.Entries {
 		if strings.HasSuffix(entry.Name, "/recipe.yaml") {
 			recipe, err := r.Recipe(filepath.Base(filepath.Dir(entry.Name)))
-			f(recipe, err)
+			if err != nil {
+				return xerrors.Errorf("cannot load %q recipe: %w", filepath.Join(r.Path, entry.Name), err)
+			}
+
+			err = f(recipe, err)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
