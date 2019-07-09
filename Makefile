@@ -92,7 +92,7 @@ release: source
 source:
 	@$(call print_step,"Building source archive...")
 	@install -d -m 0755 $(DIST_DIR) && tar -czf $(DIST_DIR)/mkdeb_$(DIST_VERSION).tar.gz \
-		--exclude=.git --exclude=bin --exclude=dist .
+		--exclude=.git --exclude=.vscode --exclude=bin --exclude=dist .
 
 # Always install missing Git hooks
 git-hooks: $(GIT_HOOKS)
