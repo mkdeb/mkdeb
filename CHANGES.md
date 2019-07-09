@@ -1,6 +1,22 @@
 CHANGES
 =======
 
+0.3.0 (2019-08-09)
+------------------
+
+NEW:
+
+* catalog: Multiple repositories can now be registered and serve as recipes
+  sources, thus supporting private repositories.
+* cmd/mkdeb: A "lint" subcommand has been added to perform basic recipes
+  linting.
+* cmd/mkdeb: The "clean" subcommand has been renamed to "cleanup".
+* cmd/mkdeb: A "--no-emoji" command flag can be specified to disable emoji
+  printing.
+* cmd/mkdeb: A folder can be specified as "--from" flag argument to use as local
+  sources instead of an archive or a single file.
+* cmd/mkdeb: Commands outputs has been refined to ensure better consistency.
+
 0.2.0 (2019-04-22)
 ------------------
 
