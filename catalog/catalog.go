@@ -40,14 +40,18 @@ func New(path string) (*Catalog, error) {
 	_, err = os.Stat(idxDir)
 	if os.IsNotExist(err) {
 		mapping := bleve.NewIndexMapping()
-		mapping.AddCustomAnalyzer("custom", map[string]interface{}{
+		mapping.DefaultAnalyzer = "custom"
+
+		err = mapping.AddCustomAnalyzer("custom", map[string]interface{}{
 			"type":      "custom",
 			"tokenizer": single.Name,
 			"token_filters": []string{
 				lowercase.Name,
 			},
 		})
-		mapping.DefaultAnalyzer = "custom"
+		if err != nil {
+			return nil, err
+		}
 
 		c.index, err = bleve.New(idxDir, mapping)
 	} else {

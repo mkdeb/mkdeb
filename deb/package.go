@@ -198,7 +198,10 @@ func (p *Package) Write(w io.Writer) error {
 
 	// Initialize archive file and append content
 	p.writer = ar.NewWriter(w)
-	p.writer.WriteGlobalHeader()
+	err = p.writer.WriteGlobalHeader()
+	if err != nil {
+		return xerrors.Errorf("cannot write archive header: %w", err)
+	}
 
 	err = p.append("debian-binary", []byte("2.0\n"), now)
 	if err != nil {

@@ -55,7 +55,7 @@ func execLint(ctx *cli.Context) error {
 			print.Lint(rcp, problems)
 		}
 	} else {
-		c.Walk(func(rcp *recipe.Recipe, repo *catalog.Repository, err error) error {
+		err = c.Walk(func(rcp *recipe.Recipe, repo *catalog.Repository, err error) error {
 			if err != nil {
 				return err
 			}
@@ -68,6 +68,9 @@ func execLint(ctx *cli.Context) error {
 
 			return nil
 		})
+		if err != nil {
+			return xerrors.Errorf("cannot walk recipes: %w", err)
+		}
 	}
 
 	if failed {

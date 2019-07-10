@@ -173,7 +173,11 @@ func (l *linter) lintSourceURL(v string) {
 
 	buf := bytes.NewBuffer(nil)
 
-	tmpl.Execute(buf, struct{ Version, Arch string }{"version", "arch"})
+	err = tmpl.Execute(buf, struct{ Version, Arch string }{"version", "arch"})
+	if err != nil {
+		l.emit("source-url-invalid", v)
+		return
+	}
 
 	url, err := url.Parse(buf.String())
 	if err != nil || url.Scheme == "" {
