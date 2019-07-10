@@ -2,9 +2,7 @@ package deb
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
-	"unsafe"
 
 	wordwrap "github.com/mitchellh/go-wordwrap"
 )
@@ -14,97 +12,77 @@ const ControlDescriptionWrap = 76
 
 // Control is a Debian control.
 type Control struct {
-	name          string
-	version       string
-	section       string
-	priority      string
-	architecture  string
-	depends       []string
-	preDepends    []string
-	recommends    []string
-	suggests      []string
-	enhances      []string
-	breaks        []string
-	conflicts     []string
-	installedSize int64
-	maintainer    string
-	description   string
-	homepage      string
+	Name          string
+	Version       string
+	Section       string
+	Priority      string
+	Architecture  string
+	Depends       []string
+	PreDepends    []string
+	Recommends    []string
+	Suggests      []string
+	Enhances      []string
+	Breaks        []string
+	Conflicts     []string
+	InstalledSize int64
+	Maintainer    string
+	Description   string
+	Homepage      string
 }
 
 // NewControl creates a new Debian control instance.
 func NewControl() *Control {
-	c := &Control{}
-	c.Set("Version", "0.0.0")
-	c.Set("Priority", "extra")
-	c.Set("Architecture", "all")
-
-	return c
-}
-
-// Set sets a given control field value.
-func (c *Control) Set(key string, value interface{}) error {
-	rv := reflect.ValueOf(value)
-	f := reflect.ValueOf(c).Elem().FieldByName(keyToFieldName(key))
-	if !f.IsValid() {
-		return ErrInvalidField
-	} else if f.Kind() != rv.Kind() {
-		return ErrInvalidValue
+	return &Control{
+		Version:      "0.0.0",
+		Priority:     "extra",
+		Architecture: "all",
 	}
-
-	reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Elem().Set(rv)
-
-	return nil
 }
 
 // String generates a Debian control data string representation.
 func (c *Control) String() string {
 	var data string
 
-	data += fmt.Sprintf("Package: %s\n", c.name)
-	data += fmt.Sprintf("Version: %s\n", c.version)
-	if c.section != "" {
-		data += fmt.Sprintf("Section: %s\n", c.section)
+	data += fmt.Sprintf("Package: %s\n", c.Name)
+	data += fmt.Sprintf("Version: %s\n", c.Version)
+	if c.Section != "" {
+		data += fmt.Sprintf("Section: %s\n", c.Section)
 	}
-	data += fmt.Sprintf("Priority: %s\n", c.priority)
-	data += fmt.Sprintf("Architecture: %s\n", c.architecture)
-	if len(c.depends) > 0 {
-		data += fmt.Sprintf("Depends: %s\n", formatDepends(c.depends))
+	data += fmt.Sprintf("Priority: %s\n", c.Priority)
+	data += fmt.Sprintf("Architecture: %s\n", c.Architecture)
+	if len(c.Depends) > 0 {
+		data += fmt.Sprintf("Depends: %s\n", formatDepends(c.Depends))
 	}
-	if len(c.preDepends) > 0 {
-		data += fmt.Sprintf("Pre-Depends: %s\n", formatDepends(c.preDepends))
+	if len(c.PreDepends) > 0 {
+		data += fmt.Sprintf("Pre-Depends: %s\n", formatDepends(c.PreDepends))
 	}
-	if len(c.recommends) > 0 {
-		data += fmt.Sprintf("Recommends: %s\n", formatDepends(c.recommends))
+	if len(c.Recommends) > 0 {
+		data += fmt.Sprintf("Recommends: %s\n", formatDepends(c.Recommends))
 	}
-	if len(c.suggests) > 0 {
-		data += fmt.Sprintf("Suggests: %s\n", formatDepends(c.suggests))
+	if len(c.Suggests) > 0 {
+		data += fmt.Sprintf("Suggests: %s\n", formatDepends(c.Suggests))
 	}
-	if len(c.enhances) > 0 {
-		data += fmt.Sprintf("Enhances: %s\n", formatDepends(c.enhances))
+	if len(c.Enhances) > 0 {
+		data += fmt.Sprintf("Enhances: %s\n", formatDepends(c.Enhances))
 	}
-	if len(c.breaks) > 0 {
-		data += fmt.Sprintf("Breaks: %s\n", formatDepends(c.breaks))
+	if len(c.Breaks) > 0 {
+		data += fmt.Sprintf("Breaks: %s\n", formatDepends(c.Breaks))
 	}
-	if len(c.conflicts) > 0 {
-		data += fmt.Sprintf("Conflicts: %s\n", formatDepends(c.conflicts))
+	if len(c.Conflicts) > 0 {
+		data += fmt.Sprintf("Conflicts: %s\n", formatDepends(c.Conflicts))
 	}
-	if c.installedSize > 0 {
-		data += fmt.Sprintf("Installed-Size: %d\n", c.installedSize/1024)
+	if c.InstalledSize > 0 {
+		data += fmt.Sprintf("Installed-Size: %d\n", c.InstalledSize/1024)
 	}
-	if c.maintainer != "" {
-		data += fmt.Sprintf("Maintainer: %s\n", c.maintainer)
+	if c.Maintainer != "" {
+		data += fmt.Sprintf("Maintainer: %s\n", c.Maintainer)
 	}
-	data += fmt.Sprintf("Description: %s\n", formatDescription(c.description))
-	if c.homepage != "" {
-		data += fmt.Sprintf("Homepage: %s\n", c.homepage)
+	data += fmt.Sprintf("Description: %s\n", formatDescription(c.Description))
+	if c.Homepage != "" {
+		data += fmt.Sprintf("Homepage: %s\n", c.Homepage)
 	}
 
 	return data
-}
-
-func keyToFieldName(key string) string {
-	return strings.ToLower(string(key[0])) + strings.Replace(key[1:], "-", "", -1)
 }
 
 func formatDepends(depends []string) string {

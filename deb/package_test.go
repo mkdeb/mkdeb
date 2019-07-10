@@ -37,7 +37,7 @@ func TestPackageAddDir(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, testPkg.dirs, "/path/to/dir")
 	assert.True(t, len(testPkg.data.Bytes()) > 0)
-	assert.Equal(t, int64(0), testPkg.Control.installedSize)
+	assert.Equal(t, int64(0), testPkg.Control.InstalledSize)
 }
 
 func TestPackageAddFile(t *testing.T) {
@@ -48,14 +48,14 @@ func TestPackageAddFile(t *testing.T) {
 	)
 	assert.Nil(t, err)
 	assert.True(t, len(testPkg.data.Bytes()) > 0)
-	assert.Equal(t, int64(7), testPkg.Control.installedSize)
+	assert.Equal(t, int64(7), testPkg.Control.InstalledSize)
 }
 
 func TestPackageAddLink(t *testing.T) {
 	err := testPkg.AddLink("/path/to/link", "/path/to/target")
 	assert.Nil(t, err)
 	assert.True(t, len(testPkg.data.Bytes()) > 0)
-	assert.Equal(t, int64(7), testPkg.Control.installedSize)
+	assert.Equal(t, int64(7), testPkg.Control.InstalledSize)
 }
 
 func TestPackageRegisterConfFile(t *testing.T) {

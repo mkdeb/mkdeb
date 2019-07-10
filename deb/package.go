@@ -105,7 +105,7 @@ func (p *Package) AddFile(path string, r io.Reader, fi os.FileInfo) error {
 
 	// Append file and its MD5 sum to the sums listing if regular file
 	size := fi.Size()
-	p.Control.installedSize += size
+	p.Control.InstalledSize += size
 
 	err = p.data.WriteHeader(&archive.Header{
 		Name:    "." + path,
@@ -153,25 +153,17 @@ func (p *Package) RegisterConfFile(path string) {
 
 // Write write the content of the Debian package to a given io.Writer.
 func (p *Package) Write(w io.Writer) error {
-	var src *bytes.Buffer
+	var (
+		src *bytes.Buffer
+		err error
+	)
 
 	now := time.Now()
 
 	// Add generated control files
-	err := p.Control.Set("Name", p.Name)
-	if err != nil {
-		return xerrors.Errorf("cannot set name: %w", err)
-	}
-
-	err = p.Control.Set("Version", p.Version.String())
-	if err != nil {
-		return xerrors.Errorf("cannot set version: %w", err)
-	}
-
-	err = p.Control.Set("Architecture", p.Arch)
-	if err != nil {
-		return xerrors.Errorf("cannot set architecture: %w", err)
-	}
+	p.Control.Name = p.Name
+	p.Control.Version = p.Version.String()
+	p.Control.Architecture = p.Arch
 
 	if len(p.confFiles) > 0 {
 		src = bytes.NewBuffer([]byte(strings.Join(p.confFiles, "\n") + "\n"))

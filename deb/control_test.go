@@ -6,14 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestControlInvalidField(t *testing.T) {
-	assert.Equal(t, ErrInvalidField, NewControl().Set("Foo", "bar"))
-}
-
-func TestControlInvalidValue(t *testing.T) {
-	assert.Equal(t, ErrInvalidValue, NewControl().Set("Name", 123))
-}
-
 func TestControlEmpty(t *testing.T) {
 	expected := `Package: 
 Version: 0.0.0
@@ -35,7 +27,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Name", "foo"))
+	c.Name = "foo"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -48,7 +40,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Version", "1.2.3"))
+	c.Version = "1.2.3"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -62,7 +54,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Section", "admin"))
+	c.Section = "admin"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -75,7 +67,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Priority", "optional"))
+	c.Priority = "optional"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -88,7 +80,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Architecture", "amd64"))
+	c.Architecture = "amd64"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -102,7 +94,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Depends", []string{"foo"}))
+	c.Depends = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -116,7 +108,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Depends", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Depends = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -130,7 +122,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Pre-Depends", []string{"foo"}))
+	c.PreDepends = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -144,7 +136,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Pre-Depends", []string{"foo", "bar (>= 1.2.3)"}))
+	c.PreDepends = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -158,7 +150,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Recommends", []string{"foo"}))
+	c.Recommends = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -172,7 +164,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Recommends", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Recommends = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -186,7 +178,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Suggests", []string{"foo"}))
+	c.Suggests = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -200,7 +192,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Suggests", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Suggests = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -214,7 +206,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Enhances", []string{"foo"}))
+	c.Enhances = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -228,7 +220,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Enhances", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Enhances = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -242,7 +234,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Breaks", []string{"foo"}))
+	c.Breaks = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -256,7 +248,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Breaks", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Breaks = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -270,7 +262,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Conflicts", []string{"foo"}))
+	c.Conflicts = []string{"foo"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -284,7 +276,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Conflicts", []string{"foo", "bar (>= 1.2.3)"}))
+	c.Conflicts = []string{"foo", "bar (>= 1.2.3)"}
 	assert.Equal(t, expected, c.String())
 }
 
@@ -298,7 +290,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Installed-Size", int64(1263616)))
+	c.InstalledSize = int64(1263616)
 	assert.Equal(t, expected, c.String())
 }
 
@@ -312,7 +304,7 @@ Description:
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Maintainer", "Foo Bar <foo@example.org>"))
+	c.Maintainer = "Foo Bar <foo@example.org>"
 	assert.Equal(t, expected, c.String())
 }
 
@@ -329,11 +321,11 @@ Description: a short description on the first line
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Description", `a short description on the first line
+	c.Description = `a short description on the first line
 A long description that should be wrapped once the line length is more than 76 characters long.
 
 And with dots separating paragraphs.
-`))
+`
 	assert.Equal(t, expected, c.String())
 }
 
@@ -347,6 +339,6 @@ Homepage: https://example.org
 `
 
 	c := NewControl()
-	assert.Nil(t, c.Set("Homepage", "https://example.org"))
+	c.Homepage = "https://example.org"
 	assert.Equal(t, expected, c.String())
 }

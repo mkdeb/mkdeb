@@ -317,32 +317,32 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 	if rcp.Control.Description != "" {
 		desc += "\n" + rcp.Control.Description
 	}
-	p.Control.Set("Description", desc)
+	p.Control.Description = desc
 
 	if len(rcp.Control.Depends) > 0 {
-		p.Control.Set("Depends", rcp.Control.Depends)
+		p.Control.Depends = rcp.Control.Depends
 	}
 	if len(rcp.Control.PreDepends) > 0 {
-		p.Control.Set("PreDepends", rcp.Control.PreDepends)
+		p.Control.PreDepends = rcp.Control.PreDepends
 	}
 	if len(rcp.Control.Recommends) > 0 {
-		p.Control.Set("Recommends", rcp.Control.Recommends)
+		p.Control.Recommends = rcp.Control.Recommends
 	}
 	if len(rcp.Control.Suggests) > 0 {
-		p.Control.Set("Suggests", rcp.Control.Suggests)
+		p.Control.Suggests = rcp.Control.Suggests
 	}
 	if len(rcp.Control.Enhances) > 0 {
-		p.Control.Set("Enhances", rcp.Control.Enhances)
+		p.Control.Enhances = rcp.Control.Enhances
 	}
 	if len(rcp.Control.Breaks) > 0 {
-		p.Control.Set("Breaks", rcp.Control.Breaks)
+		p.Control.Breaks = rcp.Control.Breaks
 	}
 	if len(rcp.Control.Conflicts) > 0 {
-		p.Control.Set("Conflicts", rcp.Control.Conflicts)
+		p.Control.Conflicts = rcp.Control.Conflicts
 	}
 
 	if len(rcp.Maintainer) > 0 {
-		p.Control.Set("Maintainer", rcp.Maintainer)
+		p.Control.Maintainer = rcp.Maintainer
 	}
 
 	if len(rcp.ControlFiles) > 0 {
