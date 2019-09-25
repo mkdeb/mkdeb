@@ -133,7 +133,6 @@ func execBuild(ctx *cli.Context) error {
 			}
 		} else {
 			rcp.Source.URL = "<unused>"
-			rcp.Source.Type = "file"
 		}
 
 		fi, err := os.Stat(from)
