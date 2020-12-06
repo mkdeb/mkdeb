@@ -1,11 +1,11 @@
 package catalog
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/search/query"
-	"golang.org/x/xerrors"
 )
 
 // SearchHit is a catalog recipe search hit.
@@ -36,7 +36,7 @@ func (c *Catalog) Search(term string, includeDesc bool) ([]*SearchHit, error) {
 
 	result, err := c.index.Search(req)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot search index: %w", err)
+		return nil, fmt.Errorf("cannot search index: %w", err)
 	}
 
 	recipes := []*SearchHit{}

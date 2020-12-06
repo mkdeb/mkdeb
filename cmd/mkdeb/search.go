@@ -10,22 +10,22 @@ import (
 
 	"facette.io/natsort"
 	_ "github.com/blevesearch/bleve/config"
-	"github.com/urfave/cli"
-	"golang.org/x/xerrors"
+	"github.com/urfave/cli/v2"
+
 	"mkdeb.sh/catalog"
 )
 
-var searchCommand = cli.Command{
+var searchCommand = &cli.Command{
 	Name:      "search",
 	Usage:     "Search for recipes",
-	Action:    execSearch,
 	ArgsUsage: "[TERM]",
+	Action:    execSearch,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "description, desc",
 			Usage: "Include recipes description when searching",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "format",
 			Usage: "Output template format",
 		},
@@ -46,15 +46,15 @@ func execSearch(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
-	term := ctx.Args().Get(0)
+	term := ctx.Args().First()
 
 	hits, err := c.Search(term, ctx.Bool("desc"))
 	if err != nil {
-		return xerrors.Errorf("cannot search catalog: %w", err)
+		return fmt.Errorf("cannot search catalog: %w", err)
 	}
 
 	if len(hits) == 0 {
@@ -80,14 +80,14 @@ func execSearch(ctx *cli.Context) error {
 
 	tmpl, err := template.New("").Parse(format)
 	if err != nil {
-		return xerrors.Errorf("invalid format: %w", err)
+		return fmt.Errorf("invalid format: %w", err)
 	}
 
 	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for _, hit := range hits {
 		err = tmpl.Execute(tr, hit)
 		if err != nil {
-			return xerrors.Errorf("cannot execute template: %w", err)
+			return fmt.Errorf("cannot execute template: %w", err)
 		}
 	}
 	tr.Flush()

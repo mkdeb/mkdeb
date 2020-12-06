@@ -1,8 +1,8 @@
 package archive
 
-import "golang.org/x/xerrors"
+import "errors"
 
 var (
 	// ErrUnsupportedCompress is an unsupported compression format error.
-	ErrUnsupportedCompress = xerrors.New("unsupported compression")
+	ErrUnsupportedCompress = errors.New("unsupported compression")
 )

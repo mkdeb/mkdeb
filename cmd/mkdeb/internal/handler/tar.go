@@ -6,7 +6,6 @@ import (
 	"os"
 
 	humanize "github.com/dustin/go-humanize"
-	"golang.org/x/xerrors"
 	"mkdeb.sh/archive"
 	"mkdeb.sh/deb"
 	"mkdeb.sh/recipe"
@@ -33,13 +32,13 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 	// Create a new reader for the source archive
 	f, err := os.Open(path)
 	if err != nil {
-		return xerrors.Errorf("cannot open upstream archive: %w", err)
+		return fmt.Errorf("cannot open upstream archive: %w", err)
 	}
 	defer f.Close()
 
 	src, err := archive.NewReader(f, compress)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize archive reader: %w", err)
+		return fmt.Errorf("cannot initialize archive reader: %w", err)
 	}
 	defer src.Close()
 
@@ -68,19 +67,19 @@ func Tar(p *deb.Package, recipe *recipe.Recipe, path, typ string) error {
 			case h.Mode&os.ModeDir == os.ModeDir:
 				err = p.AddDir(path, h.Mode)
 				if err != nil {
-					return xerrors.Errorf("cannot add %q dir: %w", name, err)
+					return fmt.Errorf("cannot add %q dir: %w", name, err)
 				}
 
 			case h.Mode&os.ModeSymlink == os.ModeSymlink:
 				err = p.AddLink(path, h.LinkName)
 				if err != nil {
-					return xerrors.Errorf("cannot add %q link: %w", name, err)
+					return fmt.Errorf("cannot add %q link: %w", name, err)
 				}
 
 			default:
 				err = p.AddFile(path, src, h.FileInfo())
 				if err != nil {
-					return xerrors.Errorf("cannot add %q file: %w", name, err)
+					return fmt.Errorf("cannot add %q file: %w", name, err)
 				}
 			}
 		}

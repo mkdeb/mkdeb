@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -8,51 +9,54 @@ import (
 	"text/template"
 
 	"github.com/mgutz/ansi"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"golang.org/x/xerrors"
+
 	"mkdeb.sh/catalog"
+
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
-var repoCommand = cli.Command{
+var repoCommand = &cli.Command{
 	Name:  "repo",
 	Usage: "Manage recipes repositories",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:      "add",
 			Usage:     "Install new repository",
 			ArgsUsage: "user/repository [URL]",
 			Action:    execAdd,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "branch",
 					Usage: "Repository branch name",
 					Value: "master",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "force",
 					Usage: "Force repository installation",
 				},
 			},
 		},
 		{
-			Name:   "list",
-			Usage:  "List installed repositories",
-			Action: execList,
+			Name:      "list",
+			Usage:     "List installed repositories",
+			ArgsUsage: " ",
+			Action:    execList,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "format",
 					Usage: "Output template format",
 				},
 			},
 		},
 		{
-			Name:   "remove",
-			Usage:  "Remove installed repository",
-			Action: execRemove,
+			Name:      "remove",
+			Usage:     "Remove installed repository",
+			ArgsUsage: "user/repository",
+			Action:    execRemove,
 		},
 	},
 }
@@ -62,7 +66,7 @@ func execAdd(ctx *cli.Context) error {
 		cli.ShowCommandHelpAndExit(ctx, "add", 1)
 	}
 
-	name := ctx.Args().Get(0)
+	name := ctx.Args().First()
 	if strings.Count(name, "/") != 1 {
 		return fmt.Errorf(`invalid %q repository name, must match "user/repository"`, name)
 	}
@@ -80,7 +84,7 @@ func execAdd(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -90,9 +94,9 @@ func execAdd(ctx *cli.Context) error {
 
 	count, err := c.InstallRepository(name, url, branch, ctx.Bool("force"))
 	if err == catalog.ErrRepositoryExist {
-		return xerrors.New(`repository already installed, use "--force" to reinstall`)
+		return errors.New(`repository already installed, use "--force" to reinstall`)
 	} else if err != nil {
-		return xerrors.Errorf("cannot install repository: %w", err)
+		return fmt.Errorf("cannot install repository: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",
@@ -108,7 +112,7 @@ func execAdd(ctx *cli.Context) error {
 func execList(ctx *cli.Context) error {
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -126,14 +130,14 @@ func execList(ctx *cli.Context) error {
 
 	tmpl, err := template.New("").Parse(format)
 	if err != nil {
-		return xerrors.Errorf("invalid format: %w", err)
+		return fmt.Errorf("invalid format: %w", err)
 	}
 
 	tr := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	for _, repo := range repos {
 		err = tmpl.Execute(tr, repo)
 		if err != nil {
-			return xerrors.Errorf("cannot execute template: %w", err)
+			return fmt.Errorf("cannot execute template: %w", err)
 		}
 	}
 	tr.Flush()
@@ -146,14 +150,14 @@ func execRemove(ctx *cli.Context) error {
 		cli.ShowCommandHelpAndExit(ctx, "remove", 1)
 	}
 
-	name := ctx.Args().Get(0)
+	name := ctx.Args().First()
 	if strings.Count(name, "/") != 1 {
 		return fmt.Errorf(`invalid %q repository name, must match "user/repository"`, name)
 	}
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -162,7 +166,7 @@ func execRemove(ctx *cli.Context) error {
 
 	count, err := c.UninstallRepository(name)
 	if err != nil {
-		return xerrors.Errorf("cannot uninstall repository: %w", err)
+		return fmt.Errorf("cannot uninstall repository: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",

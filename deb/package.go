@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/blakesmith/ar"
-	"golang.org/x/xerrors"
 	"mkdeb.sh/archive"
 )
 
@@ -36,12 +35,12 @@ func NewPackage(name, arch, version string, epoch uint, revision int) (*Package,
 	// Initialize archives that will receive internal package data
 	control, err := archive.NewWriterBuffer(archive.CompressGzip)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot create control archive: %w", err)
+		return nil, fmt.Errorf("cannot create control archive: %w", err)
 	}
 
 	data, err := archive.NewWriterBuffer(archive.CompressXZ)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot create data archive: %w", err)
+		return nil, fmt.Errorf("cannot create data archive: %w", err)
 	}
 
 	return &Package{
@@ -169,53 +168,53 @@ func (p *Package) Write(w io.Writer) error {
 		src = bytes.NewBuffer([]byte(strings.Join(p.confFiles, "\n") + "\n"))
 		err = p.AddControlFile("conffiles", src, newFileInfo("conffiles", int64(src.Len()), 0644, now, false))
 		if err != nil {
-			return xerrors.Errorf("cannot add \"conffiles\" file: %w", err)
+			return fmt.Errorf("cannot add \"conffiles\" file: %w", err)
 		}
 	}
 
 	src = bytes.NewBuffer([]byte(p.Control.String()))
 	err = p.AddControlFile("control", src, newFileInfo("control", int64(src.Len()), 0644, now, false))
 	if err != nil {
-		return xerrors.Errorf("cannot add \"control\" file: %w", err)
+		return fmt.Errorf("cannot add \"control\" file: %w", err)
 	}
 
 	src = bytes.NewBuffer(p.md5sums.Bytes())
 	err = p.AddControlFile("md5sums", src, newFileInfo("md5sums", int64(src.Len()), 0644, now, false))
 	if err != nil {
-		return xerrors.Errorf("cannot add \"md5sums\" file: %w", err)
+		return fmt.Errorf("cannot add \"md5sums\" file: %w", err)
 	}
 
 	// Close internal archives prior to write their content to prevent incomplete data
 	err = p.control.Close()
 	if err != nil {
-		return xerrors.Errorf("cannot close control archive: %w", err)
+		return fmt.Errorf("cannot close control archive: %w", err)
 	}
 
 	err = p.data.Close()
 	if err != nil {
-		return xerrors.Errorf("cannot close data archive: %w", err)
+		return fmt.Errorf("cannot close data archive: %w", err)
 	}
 
 	// Initialize archive file and append content
 	p.writer = ar.NewWriter(w)
 	err = p.writer.WriteGlobalHeader()
 	if err != nil {
-		return xerrors.Errorf("cannot write archive header: %w", err)
+		return fmt.Errorf("cannot write archive header: %w", err)
 	}
 
 	err = p.append("debian-binary", []byte("2.0\n"), now)
 	if err != nil {
-		return xerrors.Errorf("cannot append debian-binary: %w", err)
+		return fmt.Errorf("cannot append debian-binary: %w", err)
 	}
 
 	err = p.append("control.tar.gz", p.control.Bytes(), now)
 	if err != nil {
-		return xerrors.Errorf("cannot append control.tar.gz: %w", err)
+		return fmt.Errorf("cannot append control.tar.gz: %w", err)
 	}
 
 	err = p.append("data.tar.xz", p.data.Bytes(), now)
 	if err != nil {
-		return xerrors.Errorf("cannot append data.tar.xz: %w", err)
+		return fmt.Errorf("cannot append data.tar.xz: %w", err)
 	}
 
 	return nil

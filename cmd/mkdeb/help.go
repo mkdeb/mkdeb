@@ -1,14 +1,12 @@
 package main
 
-import (
-	"github.com/urfave/cli"
-)
+import "github.com/urfave/cli/v2"
 
-var helpCommand = cli.Command{
+var helpCommand = &cli.Command{
 	Name:      "help",
 	Usage:     "Show commands or help for a command",
-	Action:    execHelp,
 	ArgsUsage: "[COMMAND]",
+	Action:    execHelp,
 }
 
 func execHelp(ctx *cli.Context) error {
@@ -18,13 +16,13 @@ func execHelp(ctx *cli.Context) error {
 
 	args := ctx.Args()
 	if args.Present() {
-		return cli.ShowCommandHelp(ctx, args.Get(0))
+		return cli.ShowCommandHelp(ctx, args.First())
 	}
 
 	return cli.ShowAppHelp(ctx)
 }
 
-var helpFlag = cli.BoolFlag{
+var helpFlag = &cli.BoolFlag{
 	Name:  "help, h",
 	Usage: "Show help",
 }

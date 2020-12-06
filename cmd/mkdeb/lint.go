@@ -1,23 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/urfave/cli"
-	"golang.org/x/xerrors"
+	"github.com/urfave/cli/v2"
+
 	"mkdeb.sh/catalog"
-	"mkdeb.sh/cmd/mkdeb/internal/print"
 	"mkdeb.sh/lint"
 	"mkdeb.sh/recipe"
+
+	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
-var lintCommand = cli.Command{
+var lintCommand = &cli.Command{
 	Name:      "lint",
 	Usage:     "Run linter on recipes",
-	Action:    execLint,
 	ArgsUsage: "(--tags TAGS...|[RECIPE...])",
+	Action:    execLint,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "tags",
 			Usage: "Display linting rule tags information",
 		},
@@ -28,7 +30,7 @@ func execLint(ctx *cli.Context) error {
 	var failed bool
 
 	if ctx.Bool("tags") {
-		for _, arg := range ctx.Args() {
+		for _, arg := range ctx.Args().Slice() {
 			print.LintInfo(lint.Info(arg))
 		}
 
@@ -37,12 +39,12 @@ func execLint(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
 	if ctx.NArg() > 0 {
-		for _, arg := range ctx.Args() {
+		for _, arg := range ctx.Args().Slice() {
 			rcp, err := c.Recipe(arg)
 			if err != nil {
 				return err
@@ -69,7 +71,7 @@ func execLint(ctx *cli.Context) error {
 			return nil
 		})
 		if err != nil {
-			return xerrors.Errorf("cannot walk recipes: %w", err)
+			return fmt.Errorf("cannot walk recipes: %w", err)
 		}
 	}
 

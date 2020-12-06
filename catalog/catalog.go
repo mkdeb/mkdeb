@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 	"github.com/blevesearch/bleve/analysis/token/lowercase"
 	"github.com/blevesearch/bleve/analysis/tokenizer/single"
 	"github.com/blevesearch/bleve/search/query"
-	"golang.org/x/xerrors"
 	"mkdeb.sh/recipe"
 )
 
@@ -58,7 +58,7 @@ func New(path string) (*Catalog, error) {
 		c.index, err = bleve.Open(idxDir)
 	}
 	if err != nil {
-		return nil, xerrors.Errorf("cannot open index: %w", err)
+		return nil, fmt.Errorf("cannot open index: %w", err)
 	}
 
 	return c, nil
@@ -129,7 +129,7 @@ func (c *Catalog) InstallRepository(name, url, branch string, force bool) (uint6
 		})
 	})
 	if err != nil {
-		return 0, xerrors.Errorf("cannot index repository: %w", err)
+		return 0, fmt.Errorf("cannot index repository: %w", err)
 	}
 
 	err = c.index.Batch(batch)
@@ -214,7 +214,7 @@ func (c *Catalog) Recipe(name string) (*recipe.Recipe, error) {
 
 	result, err := c.index.Search(req)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot search index: %w", err)
+		return nil, fmt.Errorf("cannot search index: %w", err)
 	}
 
 	if result.Total == 0 {

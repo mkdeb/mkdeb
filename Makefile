@@ -55,7 +55,7 @@ build: build-bin
 build-bin:
 	@$(call print_step,"Building binaries for $(GOOS)/$(GOARCH)...")
 	@for bin in $(BIN_LIST); do \
-		$(GO) build -ldflags "-s -w" -mod vendor -tags "$(TAGS)" -i -o bin/$$bin -v ./cmd/$$bin || \
+		$(GO) build -ldflags "-s -w" -tags "$(TAGS)" -i -o bin/$$bin -v ./cmd/$$bin || \
 			$(call print_error,"failed to build $$bin for $(GOOS)/$(GOARCH)"); \
 	done
 

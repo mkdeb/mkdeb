@@ -1,14 +1,14 @@
 package recipe
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/xerrors"
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const defaultSourceType = "archive"
@@ -57,7 +57,7 @@ func LoadRecipe(path string) (*Recipe, error) {
 	// Load control and recipe files references from filesystem
 	files, err := ioutil.ReadDir(filepath.Join(path, "control"))
 	if err != nil && !os.IsNotExist(err) {
-		return nil, xerrors.Errorf("cannot read control directory: %w", err)
+		return nil, fmt.Errorf("cannot read control directory: %w", err)
 	}
 
 	for _, fi := range files {
@@ -69,7 +69,7 @@ func LoadRecipe(path string) (*Recipe, error) {
 
 	files, err = ioutil.ReadDir(filepath.Join(path, "files"))
 	if err != nil && !os.IsNotExist(err) {
-		return nil, xerrors.Errorf("cannot read files directory: %w", err)
+		return nil, fmt.Errorf("cannot read files directory: %w", err)
 	}
 
 	for _, fi := range files {

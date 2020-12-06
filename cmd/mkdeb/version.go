@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var version = "0.4.0dev"
 
-var versionCommand = cli.Command{
+var versionCommand = &cli.Command{
 	Name:      "version",
 	Usage:     "Print version information",
-	Action:    execVersion,
 	ArgsUsage: " ",
+	Action:    execVersion,
 }
 
 func execVersion(ctx *cli.Context) error {

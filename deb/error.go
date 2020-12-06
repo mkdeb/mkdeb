@@ -1,10 +1,10 @@
 package deb
 
-import "golang.org/x/xerrors"
+import "errors"
 
 var (
 	// ErrInvalidField is an invalid field error.
-	ErrInvalidField = xerrors.New("invalid field")
+	ErrInvalidField = errors.New("invalid field")
 	// ErrInvalidValue is an invalid value error.
-	ErrInvalidValue = xerrors.New("invalid value")
+	ErrInvalidValue = errors.New("invalid value")
 )

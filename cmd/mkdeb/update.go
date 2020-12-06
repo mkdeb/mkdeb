@@ -3,26 +3,27 @@ package main
 import (
 	"fmt"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"golang.org/x/xerrors"
+
 	"mkdeb.sh/catalog"
+
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 )
 
-var updateCommand = cli.Command{
+var updateCommand = &cli.Command{
 	Name:      "update",
 	Usage:     "Update recipes repositories",
-	Action:    execUpdate,
 	ArgsUsage: " ",
+	Action:    execUpdate,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "force",
 			Usage: "Force actions and repair any dangling state",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "index-only",
 			Usage: "Only perform recipes indexing",
 		},
@@ -43,7 +44,7 @@ func execUpdate(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
@@ -65,14 +66,14 @@ func execUpdate(ctx *cli.Context) error {
 			if err == catalog.ErrAlreadyUpToDate {
 				fmt.Println(err)
 			} else if err != nil {
-				return xerrors.Errorf("cannot update repository: %w", err)
+				return fmt.Errorf("cannot update repository: %w", err)
 			}
 		}
 	}
 
 	count, err := c.Index()
 	if err != nil {
-		return xerrors.Errorf("cannot index repositories: %w", err)
+		return fmt.Errorf("cannot index repositories: %w", err)
 	}
 
 	message.Set(language.English, "update.result", plural.Selectf(1, "%d",

@@ -1,13 +1,13 @@
 package catalog
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/xerrors"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"mkdeb.sh/recipe"
 )
 
@@ -33,12 +33,12 @@ func NewRepository(path, name, url, branch string) *Repository {
 func NewRepositoryFromPath(path string) (*Repository, error) {
 	repo, err := git.PlainOpen(path)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot open repository: %w", err)
+		return nil, fmt.Errorf("cannot open repository: %w", err)
 	}
 
 	remote, err := repo.Remote("origin")
 	if err != nil {
-		return nil, xerrors.Errorf("cannot get remote: %w", err)
+		return nil, fmt.Errorf("cannot get remote: %w", err)
 	}
 	remoteCfg := remote.Config()
 
@@ -68,7 +68,7 @@ func (r *Repository) Update(force bool) error {
 			Progress:      os.Stdout,
 		})
 		if err != nil {
-			return xerrors.Errorf("cannot clone repository: %w", err)
+			return fmt.Errorf("cannot clone repository: %w", err)
 		}
 
 		return nil
@@ -77,12 +77,12 @@ func (r *Repository) Update(force bool) error {
 	// Pull changes from remote
 	repo, err := git.PlainOpen(r.Path)
 	if err != nil {
-		return xerrors.Errorf("cannot open repository: %w", err)
+		return fmt.Errorf("cannot open repository: %w", err)
 	}
 
 	wt, err := repo.Worktree()
 	if err != nil {
-		return xerrors.Errorf("cannot get worktree: %w", err)
+		return fmt.Errorf("cannot get worktree: %w", err)
 	}
 
 	// TODO: implement force (git checkout -f && git clean -d -f)
@@ -94,7 +94,7 @@ func (r *Repository) Update(force bool) error {
 	if err == git.NoErrAlreadyUpToDate {
 		return ErrAlreadyUpToDate
 	} else if err != nil {
-		return xerrors.Errorf("cannot pull repository: %w", err)
+		return fmt.Errorf("cannot pull repository: %w", err)
 	}
 
 	return nil
@@ -104,19 +104,19 @@ func (r *Repository) Update(force bool) error {
 func (r *Repository) Walk(f func(recipe *recipe.Recipe, err error) error) error {
 	repo, err := git.PlainOpen(r.Path)
 	if err != nil {
-		return xerrors.Errorf("cannot open repository: %w", err)
+		return fmt.Errorf("cannot open repository: %w", err)
 	}
 
 	idx, err := repo.Storer.Index()
 	if err != nil {
-		return xerrors.Errorf("cannot get index: %w", err)
+		return fmt.Errorf("cannot get index: %w", err)
 	}
 
 	for _, entry := range idx.Entries {
 		if strings.HasSuffix(entry.Name, "/recipe.yaml") {
 			recipe, err := r.Recipe(filepath.Base(filepath.Dir(entry.Name)))
 			if err != nil {
-				return xerrors.Errorf("cannot load %q recipe: %w", filepath.Join(r.Path, entry.Name), err)
+				return fmt.Errorf("cannot load %q recipe: %w", filepath.Join(r.Path, entry.Name), err)
 			}
 
 			err = f(recipe, err)

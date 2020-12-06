@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,51 +15,52 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	"github.com/mgutz/ansi"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/text/feature/plural"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"golang.org/x/xerrors"
+
 	"mkdeb.sh/catalog"
+	"mkdeb.sh/deb"
+	"mkdeb.sh/recipe"
+
 	"mkdeb.sh/cmd/mkdeb/internal/handler"
 	"mkdeb.sh/cmd/mkdeb/internal/print"
 	"mkdeb.sh/cmd/mkdeb/internal/progress"
-	"mkdeb.sh/deb"
-	"mkdeb.sh/recipe"
 )
 
-var buildCommand = cli.Command{
+var buildCommand = &cli.Command{
 	Name:      "build",
 	Usage:     "Build Debian package",
-	Action:    execBuild,
 	ArgsUsage: "RECIPE...",
+	Action:    execBuild,
 	Flags: []cli.Flag{
-		cli.UintFlag{
+		&cli.UintFlag{
 			Name:  "epoch, e",
 			Usage: "Package version epoch",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "from, f",
 			Usage: "Upstream archive path",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "install, i",
 			Usage: "Install package after build",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "recipe, R",
 			Usage: "Recipe base path",
 		},
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "revision, r",
 			Usage: "Package version revision",
 			Value: 1,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "skip-cache",
 			Usage: "Skip download cache",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "to, t",
 			Usage: "Package output path",
 		},
@@ -76,12 +78,12 @@ func execBuild(ctx *cli.Context) error {
 	if install {
 		_, err := exec.LookPath("apt-get")
 		if err != nil {
-			return xerrors.New(`flag "--install" can only be used on Debian-based systems`)
+			return errors.New(`flag "--install" can only be used on Debian-based systems`)
 		}
 	}
 
 	if ctx.String("to") != "" && ctx.NArg() > 1 {
-		return xerrors.New(`flag "--to" cannot be used when multiple packages are being built`)
+		return errors.New(`flag "--to" cannot be used when multiple packages are being built`)
 	}
 
 	if !catalog.Ready(catalogDir) {
@@ -93,11 +95,11 @@ func execBuild(ctx *cli.Context) error {
 
 	c, err := catalog.New(catalogDir)
 	if err != nil {
-		return xerrors.Errorf("cannot initialize catalog: %w", err)
+		return fmt.Errorf("cannot initialize catalog: %w", err)
 	}
 	defer c.Close()
 
-	for _, arg := range ctx.Args() {
+	for _, arg := range ctx.Args().Slice() {
 		var (
 			rcp *recipe.Recipe
 			err error
@@ -108,7 +110,7 @@ func execBuild(ctx *cli.Context) error {
 			arch = "all"
 		}
 		if version == "" {
-			return xerrors.New("missing recipe version")
+			return errors.New("missing recipe version")
 		}
 
 		rcpPath := ctx.String("recipe")
@@ -120,7 +122,7 @@ func execBuild(ctx *cli.Context) error {
 		if err == catalog.ErrRecipeNotFound {
 			return err
 		} else if err != nil {
-			return xerrors.Errorf("cannot load recipe: %w", err)
+			return fmt.Errorf("cannot load recipe: %w", err)
 		}
 
 		print.Section("Package %s", ansi.Color(name, "green+b"))
@@ -129,7 +131,7 @@ func execBuild(ctx *cli.Context) error {
 		if from == "" {
 			from, err = downloadArchive(arch, version, rcp, ctx.Bool("skip-cache"))
 			if err != nil {
-				return xerrors.Errorf("cannot download upstream archive: %w", err)
+				return fmt.Errorf("cannot download upstream archive: %w", err)
 			}
 		} else {
 			rcp.Source.URL = "<unused>"
@@ -158,7 +160,7 @@ func execBuild(ctx *cli.Context) error {
 
 		info, err := createPackage(arch, version, epoch, ctx.Int("revision"), rcp, from, to)
 		if err != nil {
-			return xerrors.Errorf("cannot create package: %w", err)
+			return fmt.Errorf("cannot create package: %w", err)
 		}
 
 		print.Summary("📦", info.String())
@@ -212,7 +214,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 
 	v, ok := rcp.Source.ArchMapping[arch]
 	if !ok {
-		return "", xerrors.New("unsupported architecture")
+		return "", errors.New("unsupported architecture")
 	}
 	arch = v
 
@@ -221,9 +223,9 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 
 	tmpl, err := template.New("").Parse(rcp.Source.URL)
 	if err != nil {
-		return "", xerrors.Errorf("cannot parse URL template: %w", err)
+		return "", fmt.Errorf("cannot parse URL template: %w", err)
 	} else if err = tmpl.Execute(buf, struct{ Arch, Version string }{arch, version}); err != nil {
-		return "", xerrors.Errorf("cannot execute URL template: %w", err)
+		return "", fmt.Errorf("cannot execute URL template: %w", err)
 	}
 
 	url := buf.String()
@@ -243,7 +245,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	_, err = os.Stat(dirPath)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(dirPath, 0755); err != nil {
-			return "", xerrors.Errorf("cannot create cache directory: %w", err)
+			return "", fmt.Errorf("cannot create cache directory: %w", err)
 		}
 	}
 
@@ -256,7 +258,7 @@ func downloadArchive(arch, version string, rcp *recipe.Recipe, force bool) (stri
 	defer req.Body.Close()
 
 	if req.StatusCode >= 400 {
-		return "", xerrors.New(req.Status)
+		return "", errors.New(req.Status)
 	}
 
 	f, err := os.Create(path)
@@ -304,7 +306,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 	_, ok := rcp.Source.ArchMapping[arch]
 	if !ok {
-		return nil, xerrors.New("unsupported architecture")
+		return nil, errors.New("unsupported architecture")
 	}
 
 	p, err := deb.NewPackage(rcp.Name, arch, version, epoch, revision)
@@ -354,11 +356,11 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 			src, err := os.Open(f.Path)
 			if err != nil {
-				return nil, xerrors.Errorf("cannot open %q file: %w", name, err)
+				return nil, fmt.Errorf("cannot open %q file: %w", name, err)
 			}
 
 			if err = p.AddControlFile(name, src, f.FileInfo); err != nil {
-				return nil, xerrors.Errorf("cannot add %q file: %w", name, err)
+				return nil, fmt.Errorf("cannot add %q file: %w", name, err)
 			}
 		}
 	}
@@ -387,7 +389,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 	}
 
 	if f == nil {
-		return nil, xerrors.New("unsupported source")
+		return nil, errors.New("unsupported source")
 	}
 
 	err = f(p, rcp, from, subtype)
@@ -411,11 +413,11 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 				src, err := os.Open(f.Path)
 				if err != nil {
-					return nil, xerrors.Errorf("cannot open %q file: %w", name, err)
+					return nil, fmt.Errorf("cannot open %q file: %w", name, err)
 				}
 
 				if err = p.AddFile(path, src, f.FileInfo); err != nil {
-					return nil, xerrors.Errorf("cannot add %q file: %w", name, err)
+					return nil, fmt.Errorf("cannot add %q file: %w", name, err)
 				}
 			}
 		}
@@ -428,7 +430,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 			fmt.Printf("append %q\n", path)
 
 			if err = p.AddDir(path, 0755); err != nil {
-				return nil, xerrors.Errorf("cannot add %q directory: %w", path, err)
+				return nil, fmt.Errorf("cannot add %q directory: %w", path, err)
 			}
 		}
 	}
@@ -440,7 +442,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 			fmt.Printf("link %q to %q\n", src, dst)
 
 			if err = p.AddLink(dst, src); err != nil {
-				return nil, xerrors.Errorf("cannot add %q link: %w", dst, err)
+				return nil, fmt.Errorf("cannot add %q link: %w", dst, err)
 			}
 		}
 	}
@@ -454,7 +456,7 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 		wd, err := os.Getwd()
 		if err != nil {
-			return nil, xerrors.Errorf("cannot get current directory: %w", err)
+			return nil, fmt.Errorf("cannot get current directory: %w", err)
 		}
 
 		to = filepath.Join(wd, fmt.Sprintf("%s_%s_%s.deb", p.Name, v, p.Arch))
@@ -471,12 +473,12 @@ func createPackage(arch, version string, epoch uint, revision int, rcp *recipe.R
 
 	err = p.Write(file)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot write package: %w", err)
+		return nil, fmt.Errorf("cannot write package: %w", err)
 	}
 
 	fi, err := os.Stat(info.Path)
 	if err != nil {
-		return nil, xerrors.Errorf("cannot get file size: %w", err)
+		return nil, fmt.Errorf("cannot get file size: %w", err)
 	}
 
 	info.Size = fi.Size()
